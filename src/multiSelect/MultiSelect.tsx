@@ -101,7 +101,7 @@ export function MultiSelect({
                     input.current?.focus();
                     setOpen(true);
                 }}
-                className="flex min-h-9 w-full items-start gap-1 rounded-md border border-input bg-secondary py-[3px] pr-[3px] pl-2 text-sm text-foreground transition-colors focus-within:border-primary has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50 has-[input[aria-invalid=true]]:border-destructive"
+                className="flex min-h-9 w-full items-start gap-1 rounded-md border border-input bg-secondary py-[3px] pr-[3px] pl-2 text-sm text-foreground transition-colors focus-within:border-primary has-[input:disabled]:cursor-not-allowed has-[input:disabled]:bg-background has-[input[aria-invalid=true]]:border-destructive"
             >
                 <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
                     {value.map((chosen) => {
@@ -109,20 +109,24 @@ export function MultiSelect({
                         return (
                             <span
                                 key={chosen}
-                                className="inline-flex h-6 items-center gap-0.5 rounded-full bg-accent pr-0.5 pl-2.5 text-xs font-medium text-accent-foreground"
+                                className={cn(
+                                    "inline-flex h-6 items-center gap-0.5 rounded-full bg-accent pl-2.5 text-xs font-medium text-accent-foreground",
+                                    disabled ? "pr-2.5" : "pr-0.5",
+                                )}
                             >
                                 {name}
-                                <button
-                                    type="button"
-                                    disabled={disabled}
-                                    aria-label={removeLabel(name)}
-                                    onClick={() => {
-                                        change(value.filter((each) => each !== chosen));
-                                    }}
-                                    className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed"
-                                >
-                                    <Cross />
-                                </button>
+                                {!disabled && (
+                                    <button
+                                        type="button"
+                                        aria-label={removeLabel(name)}
+                                        onClick={() => {
+                                            change(value.filter((each) => each !== chosen));
+                                        }}
+                                        className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+                                    >
+                                        <Cross />
+                                    </button>
+                                )}
                             </span>
                         );
                     })}
@@ -154,16 +158,15 @@ export function MultiSelect({
                         className="h-7 min-w-16 flex-1 bg-transparent px-1 outline-none disabled:cursor-not-allowed"
                     />
                 </div>
-                {value.length > 0 && (
+                {value.length > 0 && !disabled && (
                     <button
                         type="button"
-                        disabled={disabled}
                         aria-label={clearLabel}
                         onClick={() => {
                             setQuery("");
                             change([]);
                         }}
-                        className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed"
+                        className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
                     >
                         <Cross />
                     </button>

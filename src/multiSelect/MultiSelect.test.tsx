@@ -126,6 +126,14 @@ describe("MultiSelect", () => {
         expect(combobox().getAttribute("aria-expanded")).toBe("false");
     });
 
+    it("when disabled shows the chosen values but offers nothing to change them", () => {
+        render(<MultiSelect label="Tags" options={tags} value={["billing"]} onValueChange={() => undefined} disabled />);
+
+        expect((combobox() as HTMLInputElement).disabled).toBe(true);
+        expect(screen.getByText("Billing")).toBeDefined();
+        expect(screen.queryAllByRole("button")).toEqual([]);
+    });
+
     it("keeps showing a chosen value that is no longer among the options", () => {
         render(<MultiSelect label="Tags" options={tags} value={["gone"]} onValueChange={() => undefined} />);
 
