@@ -110,7 +110,11 @@ export function MultiSelect({
                     {value.map((chosen) => {
                         const name = choices.find((choice) => choice.value === chosen)?.label ?? chosen;
                         return (
-                            <Badge key={chosen} variant="primary" className={cn("gap-0.5", !disabled && "pr-0.5")}>
+                            <Badge
+                                key={chosen}
+                                variant="primary"
+                                className={cn("gap-0.5 tracking-normal normal-case", !disabled && "pr-0.5")}
+                            >
                                 {name}
                                 {!disabled && (
                                     <Button
