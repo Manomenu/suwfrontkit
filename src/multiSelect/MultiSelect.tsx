@@ -1,6 +1,9 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
+import { Badge } from "../badge/Badge.js";
+import { Button } from "../button/Button.js";
 import { cn } from "../classNames.js";
+import { Input } from "../input/Input.js";
 import { choicesWith, matching, stepped, toggled, type Choice } from "./choices.js";
 
 export function MultiSelect({
@@ -107,30 +110,26 @@ export function MultiSelect({
                     {value.map((chosen) => {
                         const name = choices.find((choice) => choice.value === chosen)?.label ?? chosen;
                         return (
-                            <span
-                                key={chosen}
-                                className={cn(
-                                    "inline-flex h-6 items-center gap-0.5 rounded-full bg-accent pl-2.5 text-xs font-medium text-accent-foreground",
-                                    disabled ? "pr-2.5" : "pr-0.5",
-                                )}
-                            >
+                            <Badge key={chosen} variant="primary" className={cn("gap-0.5", !disabled && "pr-0.5")}>
                                 {name}
                                 {!disabled && (
-                                    <button
+                                    <Button
                                         type="button"
+                                        variant="ghost"
+                                        size="xs"
                                         aria-label={removeLabel(name)}
                                         onClick={() => {
                                             change(value.filter((each) => each !== chosen));
                                         }}
-                                        className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+                                        className="size-4 rounded-full px-0 text-current hover:bg-primary-light-hover"
                                     >
                                         <Cross />
-                                    </button>
+                                    </Button>
                                 )}
-                            </span>
+                            </Badge>
                         );
                     })}
-                    <input
+                    <Input
                         ref={input}
                         id={id}
                         role="combobox"
@@ -155,21 +154,23 @@ export function MultiSelect({
                             setOpen(false);
                             setQuery("");
                         }}
-                        className="h-7 min-w-16 flex-1 bg-transparent px-1 outline-none disabled:cursor-not-allowed"
+                        className="h-7 w-auto min-w-16 flex-1 rounded-none border-0 bg-transparent px-1"
                     />
                 </div>
                 {value.length > 0 && !disabled && (
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         aria-label={clearLabel}
                         onClick={() => {
                             setQuery("");
                             change([]);
                         }}
-                        className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+                        className="size-7 text-muted-foreground hover:text-foreground"
                     >
                         <Cross />
-                    </button>
+                    </Button>
                 )}
             </div>
             <ul

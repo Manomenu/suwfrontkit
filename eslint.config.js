@@ -97,6 +97,30 @@ export default defineConfig(
                             from: { element: { type: "component", captured: { name: "paginated" } } },
                             allow: { to: { element: { type: "component", captured: { name: "button" } } } },
                         },
+                        {
+                            from: { element: { type: "component", captured: { name: "toggleChip" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "button" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "toggleChip" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "badge" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "toggleChip" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "label" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "multiSelect" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "button" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "multiSelect" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "input" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "multiSelect" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "badge" } } } },
+                        },
                     ],
                 },
             ],

@@ -1,5 +1,8 @@
 import { useId, useRef } from "react";
 
+import { Badge } from "../badge/Badge.js";
+import { Button } from "../button/Button.js";
+import { Label } from "../label/Label.js";
 import { chosenOf, toggled } from "./selection.js";
 import { ToggleChip } from "./ToggleChip.js";
 
@@ -27,23 +30,22 @@ export function ChipFilter({
     return (
         <div className="flex flex-col gap-2">
             <div className="flex min-h-[30px] items-center gap-3">
-                <span id={labelId} className="text-sm leading-none font-medium">
-                    {label}
-                </span>
+                <Label id={labelId}>{label}</Label>
                 {count > 0 && (
                     <>
-                        <span className="text-xs text-muted-foreground">{countLabel(count)}</span>
-                        <button
+                        <Badge>{countLabel(count)}</Badge>
+                        <Button
                             type="button"
+                            variant="link"
+                            size="xs"
                             disabled={disabled}
-                            className="rounded-sm text-xs font-medium text-anchor underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:text-placeholder"
                             onClick={() => {
                                 onValueChange([]);
                                 group.current?.querySelector("button")?.focus();
                             }}
                         >
                             {clearLabel}
-                        </button>
+                        </Button>
                     </>
                 )}
             </div>
