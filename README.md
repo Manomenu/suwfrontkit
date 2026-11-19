@@ -4,8 +4,9 @@
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
 Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
-Diff, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, ResourceList, ResourceEdit, formatting of
-numbers and times on Intl, and FlowDiagram (a workflow diagram) under its own entry point.
+Diff, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, ResourceList, ResourceEdit, ToggleChip,
+ChipFilter, MultiSelect, formatting of numbers and times on Intl, and FlowDiagram (a workflow diagram) under its own
+entry point.
 
 Desktop only (16:9 and 21:9 screens), dark only. Every component is in Storybook (`just storybook`).
 
@@ -72,6 +73,9 @@ export function Companies() {
   callbacks come in as props; every label has an English default. `ResourceEdit` with `onSubmit` wraps its children in the
   form with the refusal, Save and Cancel in `StickyActions`; without it the children stand alone. Asking before leaving
   unsaved changes stays in the app: it wraps `back` and `onCancel`.
+- Choosing several values: `ChipFilter` shows a short, fixed list as chips, all visible at once; `MultiSelect` searches a
+  long or growing list and keeps a chosen value that is no longer offered. Both take `options`, `value` and
+  `onValueChange` from the app and give the value back in the order of the options. `ToggleChip` is one on/off chip.
 - Pin the exact version: every change of the look is a pull request in the app, through its own tests.
 
 ## Texts and dates

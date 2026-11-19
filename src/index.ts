@@ -18,6 +18,7 @@ export { History, type HistoryEntry, type HistoryLabels } from "./history/Histor
 export { InfoTip } from "./infoTip/InfoTip.js";
 export { Input } from "./input/Input.js";
 export { Label } from "./label/Label.js";
+export { MultiSelect } from "./multiSelect/MultiSelect.js";
 export { Page } from "./page/Page.js";
 export { Paginated, type Paging, type PagingLabels } from "./paginated/Paginated.js";
 export { Panel, Paper } from "./paper/Paper.js";
@@ -28,3 +29,5 @@ export { StatusBadge, type Status } from "./statusBadge/StatusBadge.js";
 export { StickyActions } from "./stickyActions/StickyActions.js";
 export { Table } from "./table/Table.js";
 export { Textarea } from "./textarea/Textarea.js";
+export { ChipFilter } from "./toggleChip/ChipFilter.js";
+export { ToggleChip } from "./toggleChip/ToggleChip.js";

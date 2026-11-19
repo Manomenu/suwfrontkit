@@ -173,6 +173,30 @@ export default defineConfig(
                             from: { element: { type: "component", captured: { name: "resourceEdit" } } },
                             allow: { to: { element: { type: "component", captured: { name: "stickyActions" } } } },
                         },
+                        {
+                            from: { element: { type: "component", captured: { name: "toggleChip" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "button" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "toggleChip" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "badge" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "toggleChip" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "label" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "multiSelect" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "button" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "multiSelect" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "input" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "multiSelect" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "badge" } } } },
+                        },
                     ],
                 },
             ],
