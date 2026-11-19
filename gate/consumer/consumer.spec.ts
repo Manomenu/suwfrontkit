@@ -69,4 +69,25 @@ for (const [width, height] of [
         await expect(page.getByRole("navigation", { name: "Main" })).toBeHidden();
         if (shots !== "") await page.screenshot({ path: `${shots}/appshell-${width}x${height}-collapsed.png` });
     });
+
+    test(`at ${width}x${height} the diagram of the installed package draws its nodes and edges in the theme's colours and selects a node on click`, async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width, height });
+        await page.goto("/");
+
+        const figure = page.getByRole("figure", { name: "Diagram of the procedure" });
+        await figure.scrollIntoViewIfNeeded();
+        await expect(figure.locator(".react-flow__node")).toHaveCount(3);
+        await expect(figure.locator(".react-flow__node").first()).toHaveCSS("position", "absolute");
+        await expect(figure.locator(".react-flow__edge-path").first()).toHaveCSS("stroke", "rgb(166, 173, 200)");
+        await expect(figure.locator("[data-edge-label]")).toHaveText("yes");
+
+        const check = figure.getByRole("button", { name: /Check arrears/ });
+        await expect(check).toHaveCSS("border-top-color", "rgb(88, 91, 112)");
+        await check.click();
+        await expect(check).toHaveAttribute("aria-current", "true");
+        await expect(check).toHaveCSS("border-top-color", "rgb(203, 166, 247)");
+        if (shots !== "") await figure.screenshot({ path: `${shots}/diagram-${width}x${height}.png` });
+    });
 }

@@ -90,6 +90,10 @@ export default defineConfig(
                             allow: { to: { element: { type: "component", captured: { name: "infoTip" } } } },
                         },
                         {
+                            from: { element: { type: "component", captured: { name: "history" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "paginated" } } } },
+                        },
+                        {
                             from: { element: { type: "component", captured: { name: "paginated" } } },
                             allow: { to: { element: { type: "component", captured: { name: "alert" } } } },
                         },
@@ -119,7 +123,7 @@ export default defineConfig(
         rules: { "local/no-comments": "error" },
     },
     {
-        files: ["eslint.config.js", "eslint.config.test.js", "gate/consumer/app/**"],
+        files: ["eslint.config.js", "eslint.config.test.js", "gate/consumer/app/**", "gate/consumer/plain/**"],
         extends: [tseslint.configs.disableTypeChecked],
     },
 );

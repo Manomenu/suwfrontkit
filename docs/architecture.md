@@ -32,6 +32,8 @@ The tarball holds `dist/` only: ESM JavaScript and type declarations per source 
   classes of the components without a line of its own.
 - The app writes two lines: `@import "tailwindcss";` and `@import "@maniumek/suwfrontstyle/theme.css";`, never inside
   `layer()`, `supports()` or a media query, where Tailwind refuses `@source`.
+- The diagram is a second entry point (`@maniumek/suwfrontstyle/diagram` with its own CSS), because React Flow, its only
+  user, is heavy: `@xyflow/react` is an optional peer, and the main entry never imports it.
 - Semantic tokens keep the names the apps already use (`--primary`, `--muted-foreground`, `--info`); each points at a
   Catppuccin Mocha colour (`--ctp-*`), and tints are `color-mix()` of two of them.
 
@@ -57,12 +59,13 @@ Each line is a lint rule, a type check or a test; its message says the fix.
 - Images (`imagePins.test.ts`): every image a script or workflow runs carries a version, never `latest`; the Playwright image is the version of the installed Playwright.
 - Editor (`vsCodeSettings.test.ts`): `.vscode/settings.json` has no style keys; recommended extension ids are well formed and listed once.
 - The edit hook (`hookGuardEdit.test.ts`): the gate and the generated files of this project are refused with their fix, another project's files stay editable.
-- Public API (`publicApi.test.ts`): every component folder is exported and has a story and a test.
+- Public API (`publicApi.test.ts`): every component folder is exported (from `src/index.ts` or its own entry point) and has a story and a test.
 - Colours (`noRawColors.test.ts`): no hex, `rgb()` or arbitrary colour class in `src/`.
 - Palette (`palette.ts --check`): `palette.css` equals what the installed `@catppuccin/palette` gives.
 - Stories (`stories` project): each story renders in Chromium and passes axe (`a11y.test: "error"`).
 - Visual (`visual.sh`): each story matches its screenshot at 1920x1080 and 3440x1440 and passes axe; Inter Variable is loaded, not only named.
-- Package (`package.sh`): publint, attw, and a consumer app that installs the tarball sees styled components, Inter served from its own origin and a panel that remembers its state.
+- Package (`package.sh`): publint, attw, and a consumer app that installs the tarball sees styled components, Inter served from its own origin, a panel that remembers its state and a diagram in the theme's colours; a second app without `@xyflow/react` builds from the main entry point alone.
+- Entry points (`entryPoints.test.ts`): the main entry point reaches no optional peer, so React Flow stays behind the diagram's own entry point.
 - Release (`changeset status`): a change of `src/` since `master` carries a changeset.
 - Names (`forbiddenNames.test.ts`): no folder or file named components, ui, hooks, utils, shared, common and the like.
 - Packages (`packages.test.ts`): no Mantine, Emotion, styled-components, MUI, Chakra, classnames, lodash, moment or jQuery.

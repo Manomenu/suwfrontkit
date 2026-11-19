@@ -3,7 +3,8 @@
 `@maniumek/suwfrontstyle`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
-Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, and AppShell with NavLink.
+Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History
+and Diff, and FlowDiagram (a workflow diagram) under its own entry point.
 
 Desktop only (16:9 and 21:9 screens), dark only. Every component is in Storybook (`just storybook`).
 
@@ -22,7 +23,7 @@ minimumReleaseAgeExclude:
     - "@maniumek/suwfrontstyle"
 ```
 
-The app's CSS entry (`src/index.css`) is these two lines and nothing else of the theme:
+The app's CSS entry (`src/index.css`) is these two lines and nothing else of the theme (a third for the diagram, below):
 
 ```css
 @import "tailwindcss";
@@ -66,6 +67,77 @@ export function Companies() {
 - `Page` fills the width (`width="full"`, for tables and charts on wide screens); `width="reading"` keeps forms and text at
   about 80 characters.
 - Pin the exact version: every change of the look is a pull request in the app, through its own tests.
+
+## Texts and dates
+
+Every text a component shows on its own (a heading of a list, an empty state, "Previous", "Next") is English by default
+and comes from a `labels` prop that takes any of them, so an app in another language passes its words once:
+
+```tsx
+<History
+    entries={entries}
+    locale="pl-PL"
+    labels={{ list: "Historia", empty: "Brak zmian.", details: "Szczegóły", previous: "Wstecz", next: "Dalej" }}
+/>
+```
+
+Dates are formatted with `Intl.DateTimeFormat` in the `locale` and `timeZone` the app passes (the browser's when it
+passes none). The library holds no translations and no date library.
+
+## History
+
+`History` lists changes newest first as the app orders them: when (`at`, a `Date` or an ISO string), who, what happened
+(any node, such as a `Badge` and a sentence), and optionally `details` folded under a `<details>` and `actions` (for
+example a button that shows a `Diff`). It fetches nothing.
+
+- The whole list given: it pages through it by itself, `pageSize` entries a page (20 by default).
+- One page from the server: pass that page's `entries` with `total` (all entries), or with `hasNext` when the total is
+  unknown, and `page` with `onPageChange`; `loading` and `failure` show in place of the entries.
+- `page` with `onPageChange` makes the paging controlled; without them it keeps the page itself. When everything fits on
+  one page, no paging is drawn. With no entries it says so (`labels.empty`).
+
+## Diff
+
+`<Diff before={old} after={new} />` shows the lines removed and added between two texts, unified (`view="unified"`, the
+default) or side by side (`view="split"`), with long unchanged runs folded to `context` lines around each change (3 by
+default; `Infinity` folds nothing). Lines are compared with [jsdiff](https://github.com/kpdecker/jsdiff), ignoring a
+missing newline at the end and Windows line endings.
+
+## Workflow diagram
+
+`FlowDiagram` draws nodes in rows and columns joined by arrows, on [React Flow](https://reactflow.dev) 13. React Flow is
+heavy, so the diagram has its own entry point and React Flow is an optional peer: an app without a diagram installs
+neither.
+
+```sh
+pnpm add --save-exact @xyflow/react
+```
+
+```css
+@import "tailwindcss";
+@import "@maniumek/suwfrontstyle/theme.css";
+@import "@maniumek/suwfrontstyle/diagram.css";
+```
+
+```tsx
+import { FlowDiagram, type DiagramEdge, type DiagramNode } from "@maniumek/suwfrontstyle/diagram";
+
+const nodes: DiagramNode[] = [
+    { id: "intake", name: "Collect documents", row: 0, column: 0, icon: "✋", details: <Badge variant="success">Done</Badge> },
+    { id: "check", name: "Check arrears", row: 1, column: 0 },
+];
+const edges: DiagramEdge[] = [{ from: "intake", to: "check", label: "yes" }];
+
+<FlowDiagram nodes={nodes} edges={edges} label="Diagram of the procedure" selectedId={step} onNodeClick={setStep} />;
+```
+
+- A node has a name, a place (`row`, `column`) and optionally an `icon`, `marks` beside the name, `details` on a second
+  line (a state badge, a deadline) and `muted`. An edge of `kind: "data"` is dashed, with its label by the target.
+- The diagram does not zoom or pan: it is drawn at scale 1 and its frame scrolls. `focusId` scrolls a node into view,
+  again whenever `focusRequest` changes. With `onNodeClick` every node is a button.
+- `diagram.css` brings React Flow's base styles and points its colours at the theme's tokens.
+- `GraphicSplit` puts a page's data on the left and a graphic, such as the diagram, on the right, held in view while the
+  data scrolls.
 
 ## Develop
 

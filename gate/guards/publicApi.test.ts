@@ -4,6 +4,14 @@ import { paths, read } from "./repository.ts";
 
 const NOT_A_COMPONENT = new Set(["theme"]);
 
+function entryPointFolders(): string[] {
+    const manifest = JSON.parse(read("package.json")) as { exports: Record<string, string | { types?: string }> };
+    return Object.values(manifest.exports).flatMap((target) => {
+        const folder = typeof target === "string" ? undefined : /^\.\/dist\/([^/]+)\/index\.d\.ts$/.exec(target.types ?? "")?.[1];
+        return folder === undefined ? [] : [folder];
+    });
+}
+
 function componentFolders(): string[] {
     return [
         ...new Set(
@@ -16,12 +24,13 @@ function componentFolders(): string[] {
         .sort();
 }
 
-it("every component folder is exported from src/index.ts", () => {
+it("every component folder is exported from src/index.ts or is an entry point of its own in package.json", () => {
     const index = read("src/index.ts");
+    const entryPoints = entryPointFolders();
 
     expect(
-        componentFolders().filter((folder) => !index.includes(`from "./${folder}/`)),
-        "export the component from src/index.ts, or delete the folder: a folder nobody can import is dead code",
+        componentFolders().filter((folder) => !index.includes(`from "./${folder}/`) && !entryPoints.includes(folder)),
+        "export the component from src/index.ts (or, for a component with a heavy optional peer, from src/<folder>/index.ts named in the exports of package.json), or delete the folder: a folder nobody can import is dead code",
     ).toEqual([]);
 });
 

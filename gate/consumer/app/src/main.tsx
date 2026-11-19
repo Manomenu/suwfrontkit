@@ -1,10 +1,31 @@
 import "./index.css";
 
 import { Alert, AppShell, Badge, Button, Field, Input, NavLink, Page, Table } from "@maniumek/suwfrontstyle";
-import { StrictMode } from "react";
+import { FlowDiagram, type DiagramEdge, type DiagramNode } from "@maniumek/suwfrontstyle/diagram";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 
 const items = ["Companies", "Theses", "Monitoring", "Briefs", "Notebook", "Portfolio", "Backtests"];
+
+const steps: DiagramNode[] = [
+    { id: "intake", name: "Collect documents", row: 0, column: 0, details: <Badge variant="success">Done</Badge> },
+    { id: "check", name: "Check arrears", row: 1, column: 0 },
+    { id: "letter", name: "Send the demand", row: 2, column: 0 },
+];
+
+const joins: DiagramEdge[] = [
+    { from: "intake", to: "check" },
+    { from: "check", to: "letter", label: "yes" },
+];
+
+function Procedure() {
+    const [selected, setSelected] = useState<string | null>(null);
+    return (
+        <div className="flex h-[420px] flex-col">
+            <FlowDiagram nodes={steps} edges={joins} label="Diagram of the procedure" selectedId={selected} onNodeClick={setSelected} />
+        </div>
+    );
+}
 
 function App() {
     return (
@@ -50,6 +71,7 @@ function App() {
                         {(props) => <Input {...props} defaultValue="ASML" />}
                     </Field>
                 </div>
+                <Procedure />
             </Page>
         </AppShell>
     );
