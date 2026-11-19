@@ -8,7 +8,7 @@ This repository is a published library: `@maniumek/suwfrontstyle` on npmjs.com. 
 
 ## Commands
 
-- For people: a recipe in `justfile`, with a one-line description; `just` lists them.
+- For people: a recipe in `justfile`, in a module of the whole repository beside it (`<name>.just`), or in a tool's folder as `<folder>/mod.just`, with a one-line description; `just` lists them.
 - For agents: a script in `scripts/.internal/`, or in `gate/scripts/` when it checks quality; each answers `--help`. A recipe only calls the script.
 - `check.sh --quick` while working, `check.sh` before calling a change done.
 
@@ -17,10 +17,12 @@ This repository is a published library: `@maniumek/suwfrontstyle` on npmjs.com. 
 - **The main branch is `master`**, never `main`.
 - Work on a feature branch, never on `master`. Agents do not rewrite or discard history: no
   amend, reset, rebase, stash, force-push or deleting an unmerged branch. Merging and releasing are the owner's.
-- A branch merged into `master` is deleted right after the merge, with `git branch -d`.
+- **A branch merged into `master` is deleted** right after the merge: local, remote and its worktree, with
+  `git branch -d`, which refuses unmerged work. Needed again? Start a new one from `master`.
 - A change with a red gate is not committed: it stays in the working tree and the summary says why.
-- One task, one branch. Unrelated refactors, renames, version bumps and fixes go to their own branch or into `TODO.md`.
-- Personal rules go in the gitignored `CLAUDE.local.md`, not here.
+- **One task, one branch.** Unrelated refactors, renames, version bumps and fixes go to their own
+  branch or into `TODO.md`; say so once when you reach for one, and put it in if the owner confirms.
+- Personal rules (how you commit, your tools) go in the gitignored `CLAUDE.local.md`, not here.
 
 ## Releases
 
@@ -43,22 +45,30 @@ This repository is a published library: `@maniumek/suwfrontstyle` on npmjs.com. 
 
 No comments in project files: agents mostly use comments to excuse bad code and comments rot, so names, small functions, types, stories and tests say what a comment would; if code is unclear without a comment, fix the code.
 
-- Covered: every code and config file (TypeScript, JavaScript, CSS, JSON, YAML, shell, justfile, HTML, ignore files, `.editorconfig`), JSDoc, commented-out code and task markers included. Not covered: Markdown, `docs/` and data strings (UI texts, story texts).
-- Not scanned: `pnpm-lock.yaml`, `node_modules`, `dist`, `storybook-static`, `.changeset`, `docs/`.
+- Covered: every code and config file (TypeScript, JavaScript, CSS, JSON, YAML, shell, justfile, HTML, SVG, XML, ignore files, `.editorconfig`), JSDoc, commented-out code and task markers included. Not covered: Markdown, `docs/` and data strings (UI texts, story texts).
+- Not scanned: `pnpm-lock.yaml`, `node_modules`, `dist`, `storybook-static`, `visual/snapshots`, `.changeset`, `docs/`.
 - Allowed, because a tool reads them (the guards hold the same list):
     - in a justfile, the one line directly above a recipe or `mod` that `just --list` shows;
     - a shebang `#!` on the first line; `# shellcheck <directive>=…` in shell scripts;
-    - `// @ts-expect-error <reason>`, `// @vitest-environment <env>`, and `eslint-disable` directives only where nothing else works;
-    - a comment that is exactly a criterion id where `criteria.sh` reads it: `// AC-x-n` in `eslint.config.js` and the tsconfigs, `# AC-x-n` in `.editorconfig`.
+    - `// @ts-expect-error <reason>` and `// @vitest-environment <env>`, only where nothing else works;
+    - a comment that is exactly a criterion id where `criteria.sh` reads it: `// AC-x-n` in `eslint.config.js` and the tsconfigs.
+- `@ts-ignore`, `@ts-nocheck`, `eslint-disable` and the non-null `!` are banned outright; no comment excuses them.
 - A reason that cannot live in code goes into a test, a story, the README, this file or `docs/` as a sentence.
+  A new format that needs a comment to work goes on this list and into its guard in the same change.
 
 ## Specs
 
 A spec's acceptance criteria live as guardrails: `gate/scripts/criteria.sh` and `gate/criteria.json` say what fits, its messages the fix.
+What it cannot see:
 
 - Set ids with `vdoc.py ids`, never by hand: a dropped id is never reused, an id is never renumbered.
 - A criterion no automated check can prove is a wrong criterion: ask the owner, never keep it unguarded.
 - A criterion gets the lightest check that can fail for it: a unit test before a story test, a story test before a visual test.
+- A criterion that promises something for every member of a set that grows (every component, token, story, variant) is guarded by
+  structure, not by examples: a type derived from the set's source, so a new member is a compile error until it is handled, or a test
+  that walks every member, from the source or the rendered structure. A test that names the members it checks lets the next one through.
+- A spec written before its feature is built is a draft in `docs/draft/spec/`, which the gate does not read; it moves to `docs/visual/spec/` when its feature is built, together with the tests that guard its criteria.
+- Before merging a spec'd feature, run `/suwagent:visual-guardrails`: `criteria.sh` sees that an id is named, not that the test would fail.
 
 ## Review
 
@@ -73,4 +83,4 @@ Docs say what and why, not where: a line that must change when the code moves do
 ## What no test can check
 
 - Names are chosen word by word, in technical English; one word per thing, everywhere.
-- Secrets never enter the repo: not in code, settings, tests or history.
+- Secrets never enter the repo: not in code, settings, tests or history. A real hit is removed and rotated, never allow-listed.

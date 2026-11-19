@@ -4,7 +4,7 @@ import boundaries from "eslint-plugin-boundaries";
 import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 
-const TOOL_DIRECTIVES = [/^ @ts-expect-error \S/, /^ eslint-disable(-next-line)? [\w@/-]+/, /^ @vitest-environment [\w-]+$/];
+const TOOL_DIRECTIVES = [/^ @ts-expect-error \S/, /^ @vitest-environment [\w-]+$/];
 const CRITERION_MARKER = /^ AC-[a-z0-9]+(-[a-z0-9]+)*-[0-9]+$/;
 const PANEL_PREFERENCE = "src/appShell/panelPreference.ts";
 const BROWSER_STORAGE = ["localStorage", "sessionStorage", "indexedDB"];
@@ -38,7 +38,7 @@ export const noComments = {
 };
 
 export default defineConfig(
-    { ignores: ["dist", "storybook-static", "visual/results", "gate/consumer/app", "!.storybook"] },
+    { ignores: ["dist", "storybook-static", "visual/results", "!.storybook"] },
     js.configs.recommended,
     tseslint.configs.strictTypeChecked,
     tseslint.configs.stylisticTypeChecked,
@@ -119,7 +119,7 @@ export default defineConfig(
         rules: { "local/no-comments": "error" },
     },
     {
-        files: ["eslint.config.js", "eslint.config.test.js"],
+        files: ["eslint.config.js", "eslint.config.test.js", "gate/consumer/app/**"],
         extends: [tseslint.configs.disableTypeChecked],
     },
 );

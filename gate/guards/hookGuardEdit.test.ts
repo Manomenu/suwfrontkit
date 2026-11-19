@@ -5,15 +5,17 @@ import { expect, it } from "vitest";
 
 import { ROOT } from "./repository.ts";
 
-function run(file: string, allowGateEdit = false): { status: number | null; errors: string } {
+function run(file: string, allowGateEdit = false, project?: string): { status: number | null; errors: string } {
     const env = { ...process.env };
     delete env["ALLOW_GATE_EDIT"];
+    delete env["CLAUDE_PROJECT_DIR"];
     if (allowGateEdit) env["ALLOW_GATE_EDIT"] = "1";
+    if (project !== undefined) env["CLAUDE_PROJECT_DIR"] = project;
     const result = spawnSync("bash", ["gate/scripts/hook-guard-edit.sh"], {
         cwd: ROOT,
         env,
         encoding: "utf8",
-        input: JSON.stringify({ tool_name: "Edit", tool_input: { file_path: path.join(ROOT, file) } }),
+        input: JSON.stringify({ tool_name: "Edit", tool_input: { file_path: path.isAbsolute(file) ? file : path.join(ROOT, file) } }),
     });
     return { status: result.status, errors: result.stderr };
 }
@@ -62,4 +64,19 @@ it.each([
 
 it.each(["src/button/Button.tsx", "src/theme/theme.css", "AGENTS.md", "README.md", "package.json"])("%s stays editable", (file) => {
     expect(run(file).status).toBe(0);
+});
+
+it.each([
+    "/elsewhere/other-repo/web/eslint.config.js",
+    "/elsewhere/other-repo/web/tsconfig.json",
+    "/elsewhere/other-repo/.claude/settings.json",
+    "/elsewhere/other-repo/gate/scripts/check.sh",
+    "/elsewhere/other-repo/web/pnpm-lock.yaml",
+])("%s belongs to another project and stays editable", (file) => {
+    expect(run(file).status).toBe(0);
+});
+
+it("the project Claude Code names decides which files are this project's gate", () => {
+    expect(run("/elsewhere/other-repo/eslint.config.js", false, "/elsewhere/other-repo").status).toBe(2);
+    expect(run("eslint.config.js", false, "/elsewhere/other-repo").status).toBe(0);
 });

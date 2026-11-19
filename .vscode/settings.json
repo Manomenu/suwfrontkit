@@ -9,14 +9,16 @@
     "files.exclude": {
         "**/node_modules": true,
         "**/dist": true,
+        "**/*.tsbuildinfo": true,
         "storybook-static": true,
         ".artifacts": true
     },
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.expand": false,
     "explorer.fileNesting.patterns": {
-        "README.md": "AGENTS.md, CLAUDE.md, TODO.md, LICENSE, justfile, .editorconfig, .gitignore, .gitattributes",
-        "package.json": "pnpm*, eslint*, .prettier*, knip.json, tsconfig*.json, vite.config.ts, vitest.config.ts",
-        "*.tsx": "${capture}.test.tsx, ${capture}.stories.tsx"
+        "README.md": "AGENTS.md, CLAUDE.md, TODO.md, CHANGELOG.md, LICENSE, justfile, .editorconfig, .gitignore, .gitattributes",
+        "package.json": "pnpm*, .npm*, eslint*, .eslint*, prettier*, .prettier*, knip.json, tsconfig*.json, vite.config.ts, vitest.config.ts",
+        "*.ts": "${capture}.js, ${capture}.*.ts",
+        "*.tsx": "${capture}.ts, ${capture}.*.ts, ${capture}.*.tsx"
     }
 }

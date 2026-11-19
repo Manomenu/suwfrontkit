@@ -8,6 +8,7 @@
         "editorconfig.editorconfig",
         "timonwong.shellcheck",
         "redhat.vscode-yaml",
+        "ms-azuretools.vscode-containers",
         "nefrob.vscode-just-syntax"
     ]
 }

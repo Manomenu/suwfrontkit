@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "storybook",
+            "type": "node-terminal",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "command": "pnpm storybook"
+        },
+        {
+            "name": "unit tests (vitest, jsdom)",
+            "type": "node-terminal",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "command": "pnpm exec vitest run --project unit"
+        }
+    ]
+}

@@ -51,7 +51,7 @@ for (const [width, height] of [
                 .filter((name) => name.endsWith(".woff2")),
         );
         expect(fonts.length, "a woff2 file was fetched").toBeGreaterThan(0);
-        for (const url of fonts) expect(new URL(url).origin).toBe("http://127.0.0.1:4317");
+        for (const url of fonts) expect(new URL(url).origin).toBe(new URL(page.url()).origin);
 
         await expect(toggleOf(page)).toHaveAttribute("aria-expanded", "true");
         const expandedContent = await widthOf(page, "main");

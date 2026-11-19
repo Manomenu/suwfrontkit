@@ -7,7 +7,7 @@ if printf '%s' "$input" | grep -Eq '"stop_hook_active"[[:space:]]*:[[:space:]]*t
     exit 0
 fi
 
-fingerprint() {
+head_and_working_tree_fingerprint() {
     {
         git -C "$ROOT" rev-parse HEAD 2>/dev/null || true
         git -C "$ROOT" diff HEAD --binary 2>/dev/null || git -C "$ROOT" diff --cached --binary
@@ -16,7 +16,7 @@ fingerprint() {
 }
 green="$(git -C "$ROOT" rev-parse --git-path quick-gate-green)"
 case "$green" in /*) ;; *) green="$ROOT/$green" ;; esac
-now="$(fingerprint)"
+now="$(head_and_working_tree_fingerprint)"
 if [ -f "$green" ] && [ "$(cat "$green")" = "$now" ]; then
     exit 0
 fi

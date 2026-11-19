@@ -11,6 +11,7 @@ Tailwind at the lowest version the package allows, no @source line of its own) i
   - in Chromium at 1920x1080 and 3440x1440 (gate/consumer/consumer.spec.ts): the components are styled, Inter Variable
     is loaded (document.fonts.check and loaded font faces) from the app's own origin under a font-src 'self' policy, and
     the AppShell panel collapses and stays collapsed after a reload.
+The consumer app is served on a free port of 127.0.0.1, so two checkouts (agents in worktrees) can run it at once.
 --shots <folder> also saves screenshots of the AppShell there. Needs the Playwright Chromium: pnpm exec playwright install chromium.
 USAGE
 }
@@ -57,5 +58,7 @@ for needle in ".bg-primary" ".text-primary-foreground" "--ctp-mauve" "Inter Vari
 done
 compgen -G "dist/assets/inter-latin-wght-normal*.woff2" >/dev/null || fail "the consumer's build has no Inter Variable woff2: theme.css must import @fontsource-variable/inter/wght.css"
 
+free_port() { node -e 'const server = require("node:net").createServer().listen(0, "127.0.0.1", () => { console.log(server.address().port); server.close(); });'; }
+
 cd "$ROOT"
-CONSUMER_APP="$WORK/app" CONSUMER_SHOTS="$SHOTS" pnpm exec playwright test -c gate/consumer/playwright.config.ts
+CONSUMER_APP="$WORK/app" CONSUMER_SHOTS="$SHOTS" CONSUMER_PORT="$(free_port)" pnpm exec playwright test -c gate/consumer/playwright.config.ts

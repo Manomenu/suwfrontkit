@@ -1,13 +1,16 @@
+import path from "node:path";
+
+import { ESLint } from "eslint";
 import { expect, it } from "vitest";
 
 import { CRITERION_ID, FIX, isScanned, scan, shown, type FoundComment } from "./comments.ts";
-import { fileName, paths, read } from "./repository.ts";
+import { fileName, paths, read, ROOT } from "./repository.ts";
 
 const WHOLE_LINE_ONLY = new Set([".gitignore", ".gitattributes", ".prettierignore", ".editorconfig"]);
 const ALSO_AT_THE_END_OF_A_LINE = [".sh", ".yaml", ".yml"];
 const SHELLCHECK_DIRECTIVE = /^# shellcheck (disable|enable|source|shell|external-sources)=\S+$/;
-const EDITORCONFIG_CRITERION = new RegExp(`^# ${CRITERION_ID}$`);
 const JSON_CRITERION = new RegExp(`^// ${CRITERION_ID}$`);
+const MARKUP = [".html", ".svg", ".xml"];
 const RECIPE_OR_MODULE = /^(@?[A-Za-z_][\w-]*(\s+[^:=]*)?:(?!=)|mod\s+[\w-]+\s*$)/;
 
 const isJust = (file: string) => fileName(file) === "justfile" || file.endsWith(".just");
@@ -47,7 +50,6 @@ function isAllowed(file: string, lines: string[], index: number, comment: string
     return (
         (index === 0 && comment.startsWith("#!")) ||
         (isShell(file) && SHELLCHECK_DIRECTIVE.test(comment)) ||
-        (fileName(file) === ".editorconfig" && EDITORCONFIG_CRITERION.test(comment)) ||
         (isJust(file) && describesTheRecipeBelow(lines, index))
     );
 }
@@ -98,9 +100,9 @@ it("no JSON file holds a comment but a criterion marker in a tsconfig", () => {
     );
 });
 
-it("no HTML file holds a comment", () => {
+it("no HTML, SVG or XML file holds a comment", () => {
     assertNone(
-        scanned().filter((file) => file.endsWith(".html")),
+        scanned().filter((file) => MARKUP.some((extension) => file.endsWith(extension))),
         (_, text) => htmlCommentsIn(text),
     );
 });
@@ -118,6 +120,17 @@ it.each([
     ).toBe(true);
 });
 
+it("eslint ignores no TypeScript or JavaScript file of the repository", async () => {
+    const eslint = new ESLint({ cwd: ROOT });
+    const code = scanned().filter((file) => /\.(ts|tsx|js|mjs|cjs)$/.test(file));
+    const ignored = await Promise.all(code.map(async (file) => ((await eslint.isPathIgnored(path.join(ROOT, file))) ? [file] : [])));
+
+    expect(
+        ignored.flat(),
+        "a file eslint ignores escapes the no-comments rule: take it out of the ignores of eslint.config.js (a file outside the tsconfig projects goes into the block that extends disableTypeChecked)",
+    ).toEqual([]);
+});
+
 it("the lint step of the gate lints the whole repository", () => {
     expect(read("gate/scripts/check.sh")).toContain("pnpm exec eslint . --max-warnings 0");
 });
@@ -126,17 +139,25 @@ it.each([
     ["gate/scripts/check.sh", "#!/usr/bin/env bash\nset -euo pipefail", 0],
     ["gate/scripts/check.sh", "#!/usr/bin/env bash\n# The gate\nset -euo pipefail", 2],
     ["gate/scripts/check.sh", "set -euo pipefail\n# shellcheck disable=SC2086\necho $a", 0],
+    ["gate/scripts/check.sh", "# shellcheck source=gate/scripts/criteria.sh\nsource x", 0],
     ["gate/scripts/check.sh", "# shellcheck disable=SC2086 because\necho $a", 1],
     ["gate/scripts/check.sh", "echo up # start it", 1],
     ["gate/scripts/check.sh", "echo \"# not a comment\" '# nor this' ${#list[@]} $#", 0],
     [".githooks/pre-commit", "#!/usr/bin/env bash\n# Before a commit\nset -e", 2],
     [".github/workflows/ci.yml", "jobs:\n  gate:\n    runs-on: ubuntu-24.04 # pinned", 3],
+    [".github/workflows/ci.yml", "name: ci\n# the gate\non: push", 2],
+    ["pnpm-workspace.yaml", "allowBuilds:\n  esbuild: true # its binary", 2],
     [".github/workflows/ci.yml", "run: echo \"a # b\"\nname: 'c # d'", 0],
     [".gitignore", "dist/\n# generated\nnode_modules/", 2],
-    [".editorconfig", "[*]\n# AC-" + "theme-1\nindent_size = 4", 0],
+    [".gitattributes", "*.png binary\n# Line endings\n* text=auto", 2],
+    [".prettierignore", "dist\n# the screenshots\nvisual/snapshots", 2],
+    [".editorconfig", "[*]\n# AC-" + "theme-1\nindent_size = 4", 2],
+    [".editorconfig", "[*]\n# Reason: two spaces in YAML\nindent_size = 2", 2],
     [".editorconfig", "[*]\n; old style\nroot = true", 2],
     ["justfile", "# Format the code\n[group('maintenance')]\nfmt:\n    prettier --write .", 0],
+    ["justfile", "# The whole gate\ncheck *args:\n    @./gate/scripts/check.sh", 0],
     ["justfile", "# The local stack\nmod tmux-dev", 0],
+    ["justfile", "# Entry point for humans\n# Format the code\nfmt:\n    x", 1],
     ["justfile", '# Entry point for humans\n\nset shell := ["bash"]', 1],
     ["justfile", "# hidden\n[private]\ndefault:\n    @just --list", 1],
     ["justfile", "fmt:\n    # format it\n    x", 2],
@@ -158,6 +179,7 @@ it.each([
     ["knip.json", '{\n  // only points at the projects\n  "a": 1\n}', 2],
     ["knip.json", '{ "a": 1 /* a block */ }', 1],
     ["knip.json", '{ "$schema": "https://example.com/x.json", "b": "/* no */" }', 0],
+    ["knip.json", '{ "a": "say \\"// no\\"" }', 0],
     ["tsconfig.json", "{\n  // AC-" + 'theme-1\n  "strict": true\n}', 0],
     ["tsconfig.json", "{\n  // AC-" + 'theme-1 keeps it strict\n  "strict": true\n}', 2],
     [".vscode/settings.json", "{\n  // AC-" + 'theme-1\n  "a": 1\n}', 2],
@@ -168,6 +190,8 @@ it.each([
 it.each([
     ["<html><body></body></html>", 0],
     ["<html>\n<!-- the page -->\n</html>", 2],
-])("the rules find a comment in HTML (%#)", (text, line) => {
+    ['<svg xmlns="http://www.w3.org/2000/svg">\n  <!-- the logo -->\n</svg>', 2],
+    ['<?xml version="1.0"?>\n<!--\n  only nuget.org\n-->\n<configuration />', 2],
+])("the rules find a comment in HTML, SVG or XML (%#)", (text, line) => {
     expect(htmlCommentsIn(text)[0]?.line ?? 0).toBe(line);
 });

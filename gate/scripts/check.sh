@@ -21,6 +21,8 @@ Quiet: a green gate prints one line. Otherwise it lists only the failed and skip
 after the tail of each failed log: whoever reads it, often an agent's context, pays only for what needs fixing.
 A step that cannot run (a tool is missing) is SKIP, never PASS; with CI set a SKIP fails the gate, locally the report ends with
 "NOT VERIFIED: <steps>". Exit code is non-zero on any failure.
+Acceptance criteria are not in --quick: the Stop hook runs it after every turn, and a criterion written into
+a spec before its guardrail (or one the owner must first decide on) would block the agent from stopping to ask.
 USAGE
 }
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -187,7 +189,8 @@ else
     else
         fetched=0
         "$ROOT/gate/scripts/criteria.sh" --fetch >/dev/null 2>&1 || fetched=$?
-        if [ "$fetched" -eq 3 ]; then SKIPPED[criteria]="the pinned vdoc.py cannot be downloaded (no network?)"; fi
+        criteria_tool_cannot_be_downloaded=3
+        if [ "$fetched" -eq "$criteria_tool_cannot_be_downloaded" ]; then SKIPPED[criteria]="the pinned vdoc.py cannot be downloaded (no network?)"; fi
     fi
 fi
 
