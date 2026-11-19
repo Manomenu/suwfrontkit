@@ -4,7 +4,8 @@
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
 Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, AppShell with NavLink, Dialog,
-ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, and formatting of numbers and times on Intl.
+ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, ResourceList, ResourceEdit, and formatting of numbers and
+times on Intl.
 
 Desktop only (16:9 and 21:9 screens), dark only. Every component is in Storybook (`just storybook`).
 
@@ -66,6 +67,11 @@ export function Companies() {
   the app passes its own `<nav>`.
 - `Page` fills the width (`width="full"`, for tables and charts on wide screens); `width="reading"` keeps forms and text at
   about 80 characters.
+- `ResourceList` and `ResourceEdit` are the two screens of a resource. They know no router and fetch nothing: links come in
+  as render props (`link`, `add`, `back`) that return the app's own `<Link>`, which the library styles; data, state and
+  callbacks come in as props; every label has an English default. `ResourceEdit` with `onSubmit` wraps its children in the
+  form with the refusal, Save and Cancel in `StickyActions`; without it the children stand alone. Asking before leaving
+  unsaved changes stays in the app: it wraps `back` and `onCancel`.
 - Pin the exact version: every change of the look is a pull request in the app, through its own tests.
 
 ## Develop

@@ -18,6 +18,8 @@ export { Label } from "./label/Label.js";
 export { Page } from "./page/Page.js";
 export { Paginated, type Paging } from "./paginated/Paginated.js";
 export { Panel, Paper } from "./paper/Paper.js";
+export { ResourceEdit, type Deletion } from "./resourceEdit/ResourceEdit.js";
+export { ResourceList, type ResourceColumn } from "./resourceList/ResourceList.js";
 export { Select } from "./select/Select.js";
 export { StatusBadge, type Status } from "./statusBadge/StatusBadge.js";
 export { StickyActions } from "./stickyActions/StickyActions.js";
