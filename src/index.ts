@@ -5,6 +5,8 @@ export { AppShell } from "./appShell/AppShell.js";
 export { NavLink } from "./appShell/NavLink.js";
 export { Badge } from "./badge/Badge.js";
 export { Button } from "./button/Button.js";
+export { ConfirmDialog } from "./dialog/ConfirmDialog.js";
+export { Dialog } from "./dialog/Dialog.js";
 export { Field, Legend } from "./field/Field.js";
 export { InfoTip } from "./infoTip/InfoTip.js";
 export { Input } from "./input/Input.js";
