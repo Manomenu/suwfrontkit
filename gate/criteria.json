@@ -1,0 +1,17 @@
+{
+    "specs": "docs/visual/spec",
+    "prose": ["docs/**", "**/*.md"],
+    "kinds": [
+        { "kind": "unit test (vitest)", "paths": ["src/**/*.test.ts", "src/**/*.test.tsx"], "how": "the id in the title: it(\"<id>: …\")" },
+        {
+            "kind": "story test (vitest, Chromium)",
+            "paths": ["src/**/*.stories.tsx"],
+            "how": "the id in the story's name: name: \"<id>: …\""
+        },
+        { "kind": "visual test (playwright)", "paths": ["visual/*.visual.ts"], "how": "the id in the title: test(\"<id>: …\")" },
+        { "kind": "consumer test (playwright)", "paths": ["gate/consumer/*.spec.ts"], "how": "the id in the title: test(\"<id>: …\")" },
+        { "kind": "gate test (vitest)", "paths": ["gate/guards/*.test.ts"], "how": "the id in the title: it(\"<id>: …\")" },
+        { "kind": "lint (eslint)", "paths": ["eslint.config.js"], "how": "// <id> on the line above the rule" },
+        { "kind": "type check (tsc)", "paths": ["tsconfig*.json"], "how": "// <id> on the line above the option" }
+    ]
+}

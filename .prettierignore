@@ -1,0 +1,11 @@
+dist
+node_modules
+pnpm-lock.yaml
+storybook-static
+visual/snapshots
+visual/results
+gate/consumer/node_modules
+gate/consumer/dist
+docs/visual
+CHANGELOG.md
+.changeset/*.md

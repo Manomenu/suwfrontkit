@@ -1,0 +1,22 @@
+{
+    "editor.formatOnSave": true,
+    "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "tailwindCSS.classFunctions": ["cn", "cva"],
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "storybook-static": true,
+        ".artifacts": true
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.patterns": {
+        "README.md": "AGENTS.md, CLAUDE.md, TODO.md, LICENSE, justfile, .editorconfig, .gitignore, .gitattributes",
+        "package.json": "pnpm*, eslint*, .prettier*, knip.json, tsconfig*.json, vite.config.ts, vitest.config.ts",
+        "*.tsx": "${capture}.test.tsx, ${capture}.stories.tsx"
+    }
+}

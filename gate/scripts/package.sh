@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+usage() {
+    cat <<'USAGE'
+usage: package.sh [--shots <folder>] | --help
+Checks the package as an app gets it from npm: packs it with pnpm pack (which builds dist/ with tsc), lints the tarball
+with publint --strict and attw --profile esm-only, then installs the tarball into a copy of gate/consumer/app (Vite,
+Tailwind at the lowest version the package allows, no @source line of its own) in a temporary folder, builds it and checks:
+  - the built CSS holds the utilities of the package's components and the theme's variables (theme.css finds the
+    components by itself), and the build holds the Inter Variable woff2 files;
+  - in Chromium at 1920x1080 and 3440x1440 (gate/consumer/consumer.spec.ts): the components are styled, Inter Variable
+    is loaded (document.fonts.check and loaded font faces) from the app's own origin under a font-src 'self' policy, and
+    the AppShell panel collapses and stays collapsed after a reload.
+--shots <folder> also saves screenshots of the AppShell there. Needs the Playwright Chromium: pnpm exec playwright install chromium.
+USAGE
+}
+SHOTS=""
+case "${1:-}" in
+    "") ;;
+    --help)
+        usage
+        exit 0
+        ;;
+    --shots)
+        SHOTS="$(realpath "${2:?--shots needs a folder}")"
+        ;;
+    *)
+        usage >&2
+        exit 2
+        ;;
+esac
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+cd "$ROOT"
+pnpm pack --pack-destination "$WORK" >/dev/null
+TARBALL="$(ls "$WORK"/*.tgz)"
+pnpm exec publint "$TARBALL" --strict
+pnpm exec attw "$TARBALL" --profile esm-only --exclude-entrypoints ./theme.css --format table-flipped
+
+cp -r "$ROOT/gate/consumer/app" "$WORK/app"
+cd "$WORK/app"
+pnpm add "$TARBALL" --silent
+pnpm exec vite build --logLevel warn
+
+fail() {
+    echo "package.sh: $1" >&2
+    exit 1
+}
+CSS="$(cat dist/assets/*.css)"
+for needle in ".bg-primary" ".text-primary-foreground" "--ctp-mauve" "Inter Variable"; do
+    case "$CSS" in
+        *"$needle"*) ;;
+        *) fail "the consumer's built CSS lacks $needle: theme.css no longer brings the components' utilities or the theme (its @source line, its imports)" ;;
+    esac
+done
+compgen -G "dist/assets/inter-latin-wght-normal*.woff2" >/dev/null || fail "the consumer's build has no Inter Variable woff2: theme.css must import @fontsource-variable/inter/wght.css"
+
+cd "$ROOT"
+CONSUMER_APP="$WORK/app" CONSUMER_SHOTS="$SHOTS" pnpm exec playwright test -c gate/consumer/playwright.config.ts

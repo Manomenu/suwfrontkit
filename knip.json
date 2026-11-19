@@ -1,0 +1,7 @@
+{
+    "$schema": "https://unpkg.com/knip@6/schema.json",
+    "entry": ["src/index.ts", "scripts/.internal/palette.ts", "gate/consumer/app/src/main.tsx", "gate/consumer/app/vite.config.ts"],
+    "project": ["src/**/*.{ts,tsx}", "gate/**/*.ts", "visual/**/*.ts", "scripts/.internal/*.ts"],
+    "ignoreDependencies": ["tailwindcss", "@fontsource-variable/inter", "publint", "@arethetypeswrong/cli"],
+    "playwright": { "config": ["visual/playwright.config.ts", "gate/consumer/playwright.config.ts"] }
+}

@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "vitest.explorer",
+        "ms-playwright.playwright",
+        "editorconfig.editorconfig",
+        "timonwong.shellcheck",
+        "redhat.vscode-yaml",
+        "nefrob.vscode-just-syntax"
+    ]
+}
