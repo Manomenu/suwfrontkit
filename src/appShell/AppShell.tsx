@@ -1,18 +1,26 @@
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactElement, type ReactNode } from "react";
+import { Tooltip } from "radix-ui";
 
 import { cn } from "../classNames.js";
 import { COLLAPSED_PANEL_WIDTH, HEADER_HEIGHT, PANEL_WIDTH, panelSideClasses } from "./layout.js";
+import { PanelContext } from "./panelContext.js";
 import { storeCollapsed, storedCollapsed } from "./panelPreference.js";
 
 export function AppShell({
-    header,
+    appIcon,
+    appTitle,
+    home,
+    headerEnd,
     panel,
     panelLabel,
     storageKey,
     side = "left",
     children,
 }: {
-    header: ReactNode;
+    appIcon: ReactElement;
+    appTitle: string;
+    home: (link: { className: string; children: ReactNode }) => ReactNode;
+    headerEnd?: ReactNode;
     panel: ReactNode;
     panelLabel: string;
     storageKey: string;
@@ -25,15 +33,30 @@ export function AppShell({
     return (
         <div className="min-h-screen" style={{ "--header-height": `${String(HEADER_HEIGHT)}px` } as CSSProperties}>
             <header
-                className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background px-4"
+                className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background pr-4 pl-2.5"
                 style={{ height: HEADER_HEIGHT }}
             >
-                {header}
+                {home({
+                    className:
+                        "flex items-center gap-2.5 rounded-md pr-1 text-lg font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                    children: (
+                        <>
+                            <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center *:size-full">
+                                {appIcon}
+                            </span>
+                            <span>{appTitle}</span>
+                        </>
+                    ),
+                })}
+                <div className="ml-auto flex items-center gap-3">{headerEnd}</div>
             </header>
             <div className={cn("flex", classes.row)}>
                 <aside
                     id="navigation-panel"
-                    className={cn("sticky flex shrink-0 flex-col gap-1 overflow-y-auto border-border bg-background p-1.5", classes.border)}
+                    className={cn(
+                        "sticky flex shrink-0 flex-col gap-1 overflow-x-hidden overflow-y-auto border-border bg-background p-1.5",
+                        classes.border,
+                    )}
                     style={{
                         width: collapsed ? COLLAPSED_PANEL_WIDTH : PANEL_WIDTH,
                         top: HEADER_HEIGHT,
@@ -56,7 +79,11 @@ export function AppShell({
                             <path d="M2 5h16M2 10h16M2 15h16" />
                         </svg>
                     </button>
-                    {!collapsed && <div className="flex min-h-0 flex-1 flex-col px-1 pb-1">{panel}</div>}
+                    <PanelContext value={{ collapsed, side }}>
+                        <Tooltip.Provider delayDuration={150}>
+                            <div className="flex min-h-0 flex-1 flex-col">{panel}</div>
+                        </Tooltip.Provider>
+                    </PanelContext>
                 </aside>
                 <main className="min-w-0 flex-1 p-4">{children}</main>
             </div>

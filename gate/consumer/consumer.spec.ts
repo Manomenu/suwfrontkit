@@ -26,7 +26,7 @@ for (const [width, height] of [
     [1920, 1080],
     [3440, 1440],
 ] as const) {
-    test(`at ${width}x${height} the installed package draws its styles, loads Inter from the app's origin, and the panel remembers its state`, async ({
+    test(`at ${width}x${height} the installed package draws its styles, loads Inter from the app's origin, and the panel collapses to its icons and remembers it`, async ({
         page,
     }) => {
         await page.setViewportSize({ width, height });
@@ -58,15 +58,20 @@ for (const [width, height] of [
         expect(expandedContent).toBeGreaterThan(width - 300);
         if (shots !== "") await page.screenshot({ path: `${shots}/appshell-${width}x${height}-expanded.png` });
 
+        await expect(page.getByRole("banner").getByRole("link", { name: "consumer" })).toBeVisible();
+        await expect(page.getByRole("link", { name: "Companies" })).toHaveAttribute("aria-current", "page");
+
         await toggleOf(page).click();
         await expect(toggleOf(page)).toHaveAttribute("aria-expanded", "false");
-        await expect(page.getByRole("navigation", { name: "Main" })).toBeHidden();
+        await expect(page.getByRole("navigation", { name: "Main" }).locator("svg")).toHaveCount(7);
+        await expect(page.getByRole("link", { name: "Companies" })).toHaveAttribute("aria-label", "Companies");
         expect(await widthOf(page, "#navigation-panel")).toBeLessThanOrEqual(64);
         expect(await widthOf(page, "main")).toBeGreaterThan(expandedContent + 100);
 
         await page.reload();
         await expect(toggleOf(page)).toHaveAttribute("aria-expanded", "false");
-        await expect(page.getByRole("navigation", { name: "Main" })).toBeHidden();
+        await page.getByRole("link", { name: "Theses" }).hover();
+        await expect(page.getByRole("tooltip")).toHaveText("Theses");
         if (shots !== "") await page.screenshot({ path: `${shots}/appshell-${width}x${height}-collapsed.png` });
     });
 

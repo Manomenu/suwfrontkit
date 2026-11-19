@@ -5,7 +5,23 @@ import { FlowDiagram, type DiagramEdge, type DiagramNode } from "@maniumek/suwfr
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 
-const items = ["Companies", "Theses", "Monitoring", "Briefs", "Notebook", "Portfolio", "Backtests"];
+function Icon({ d }) {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d={d} />
+        </svg>
+    );
+}
+
+const items = [
+    { label: "Companies", d: "M4 21V5l8-3 8 3v16M9 21v-4h6v4" },
+    { label: "Theses", d: "M6 2h9l5 5v15H6zM14 2v6h6M9 13h8M9 17h8" },
+    { label: "Monitoring", d: "M2 12h4l3-8 4 16 3-8h6" },
+    { label: "Briefs", d: "M3 7h18v13H3zM8 7V4h8v3M3 13h18" },
+    { label: "Notebook", d: "M5 3h14v18H5zM9 3v18M12 8h4M12 12h4" },
+    { label: "Portfolio", d: "M12 3a9 9 0 1 0 9 9h-9z" },
+    { label: "Backtests", d: "M3 12a9 9 0 1 0 3-6.7M3 3v5h5M12 7v5l3 3" },
+];
 
 const steps: DiagramNode[] = [
     { id: "intake", name: "Collect documents", row: 0, column: 0, details: <Badge variant="success">Done</Badge> },
@@ -30,13 +46,19 @@ function Procedure() {
 function App() {
     return (
         <AppShell
-            header={<span className="text-lg font-bold">consumer</span>}
+            appIcon={<Icon d="M3 3v18h18M7 15l4-4 3 3 6-7" />}
+            appTitle="consumer"
+            home={(link) => <a href="/" {...link} />}
             panel={
                 <nav aria-label="Main" className="flex flex-col gap-0.5">
                     {items.map((item) => (
-                        <NavLink key={item} href={`#${item.toLowerCase()}`} current={item === "Companies"}>
-                            {item}
-                        </NavLink>
+                        <NavLink
+                            key={item.label}
+                            href={`#${item.label.toLowerCase()}`}
+                            icon={<Icon d={item.d} />}
+                            label={item.label}
+                            current={item.label === "Companies"}
+                        />
                     ))}
                 </nav>
             }
