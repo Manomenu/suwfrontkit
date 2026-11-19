@@ -35,16 +35,23 @@ are. Never import it inside `layer()`, `supports()` or a media query: Tailwind t
 
 ```tsx
 import { AppShell, Button, NavLink, Page } from "@maniumek/suwfrontstyle";
+import { Building2, ChartLine, FileText } from "lucide-react";
 import { Link } from "wouter";
 
 export function Shell({ children }: { children: React.ReactNode }) {
     return (
         <AppShell
-            header={<span className="text-lg font-bold">myapp</span>}
+            appIcon={<ChartLine />}
+            appTitle="myapp"
+            home={(link) => <Link href="/" {...link} />}
+            headerEnd={<span>signed in as maniumek</span>}
             panel={
                 <nav aria-label="Main">
-                    <NavLink asChild current>
-                        <Link href="/">Companies</Link>
+                    <NavLink asChild icon={<Building2 />} label="Companies" current>
+                        <Link href="/" />
+                    </NavLink>
+                    <NavLink asChild icon={<FileText />} label="Theses" current={false}>
+                        <Link href="/theses" />
                     </NavLink>
                 </nav>
             }
@@ -61,11 +68,31 @@ export function Companies() {
 }
 ```
 
+- The header always shows the app's icon and title, as a link home; `appIcon` and `appTitle` are required, so an app without
+  them does not compile. `home` renders that link with the app's router (`(link) => <a href="/" {...link} />` without one);
+  whatever else the header needs goes to `headerEnd`, on the right.
+- Every `NavLink` needs an `icon` and a `label`. The expanded panel shows both; the collapsed panel is a strip of the icons,
+  each named by its label and showing it in a tooltip, with `aria-current` in both states. With `asChild` the router's link
+  is the child, empty: NavLink puts the icon and the label into it.
+- The library ships no icons: pass any React element, an inline `<svg>`, an `<img>` or an icon set such as
+  [lucide-react](https://lucide.dev/guide/packages/lucide-react). The shell sizes them (28 px in the header, 20 px in the panel).
 - `AppShell` remembers the collapsed panel under `storageKey` in `localStorage`; it starts expanded. It knows no router:
   the app passes its own `<nav>`.
 - `Page` fills the width (`width="full"`, for tables and charts on wide screens); `width="reading"` keeps forms and text at
   about 80 characters.
 - Pin the exact version: every change of the look is a pull request in the app, through its own tests.
+
+### Moving to the AppShell with icons
+
+A breaking change: the header and the navigation now require icons.
+
+- `header` is gone. Pass `appIcon` (the app's icon), `appTitle` (its name) and `home` (the link to the start page); anything
+  else that was in the header goes to `headerEnd`.
+- `NavLink` takes `icon` and `label`; the text no longer goes in its children. `<NavLink href="/" current>Companies</NavLink>`
+  becomes `<NavLink href="/" icon={<Building2 />} label="Companies" current />`, and with `asChild` the router's link stays
+  the child, without text: `<NavLink asChild icon={<Building2 />} label="Companies" current><Link href="/" /></NavLink>`.
+- The panel stays in the page when collapsed (as the strip of icons): a test that expected the navigation to disappear now
+  finds the links by their labels.
 
 ## Develop
 
