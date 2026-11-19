@@ -102,6 +102,18 @@ export default defineConfig(
                             allow: { to: { element: { type: "component", captured: { name: "paper" } } } },
                         },
                         {
+                            from: { element: { type: "component", captured: { name: "errorBoundary" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "alert" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "errorBoundary" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "button" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "statusBadge" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "badge" } } } },
+                        },
+                        {
                             from: { element: { type: "component", captured: { name: "paginated" } } },
                             allow: { to: { element: { type: "component", captured: { name: "button" } } } },
                         },

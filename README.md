@@ -3,7 +3,8 @@
 `@maniumek/suwfrontstyle`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
-Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, and AppShell with NavLink.
+Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, AppShell with NavLink, Dialog,
+ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, and formatting of numbers and times on Intl.
 
 Desktop only (16:9 and 21:9 screens), dark only. Every component is in Storybook (`just storybook`).
 
