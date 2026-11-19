@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, type ReactElement } from "react";
 
-import { Button } from "../button/Button.js";
+import { expect, userEvent, waitFor, within } from "storybook/test";
+
 import { Field } from "../field/Field.js";
 import { Input } from "../input/Input.js";
-import { Paper } from "../paper/Paper.js";
 import { ResourceList } from "../resourceList/ResourceList.js";
-import { ResourceEdit, type Deletion } from "./ResourceEdit.js";
+import { ResourceEdit } from "./ResourceEdit.js";
 
 interface Company {
     ticker: string;
@@ -19,23 +19,6 @@ const companies: Company[] = [
     { ticker: "DNP", name: "Dino Polska", target: "520" },
     { ticker: "CDR", name: "CD Projekt", target: "180" },
 ];
-
-function Confirmation({ question, answer }: { question: string; answer: Parameters<Deletion["confirm"]>[0] }) {
-    return (
-        <Paper role="alertdialog" aria-label={question} className="flex max-w-lg flex-col gap-3">
-            <h2 className="text-base font-semibold">{question}</h2>
-            <p className="text-sm text-muted-foreground">This cannot be undone. Its theses and notes are deleted with it.</p>
-            <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" autoFocus onClick={answer.onCancel}>
-                    Keep it
-                </Button>
-                <Button type="button" variant="destructive" onClick={answer.onConfirm}>
-                    Delete company
-                </Button>
-            </div>
-        </Paper>
-    );
-}
 
 function CompanyFields({
     company,
@@ -159,7 +142,9 @@ function CompaniesScreens() {
                     setList(list.filter((company) => company.ticker !== open.ticker));
                     close();
                 },
-                confirm: (answer) => <Confirmation question={`Delete company ${open.ticker}?`} answer={answer} />,
+                question: `Delete company ${open.ticker}?`,
+                consequence: "This cannot be undone. Its theses and notes are deleted with it.",
+                confirmLabel: "Delete company",
             }}
         >
             <CompanyFields company={draft} errors={{ name: nameErrors }} onChange={setDraft} />
@@ -179,7 +164,9 @@ const meta = {
         onCancel: () => undefined,
         deletion: {
             onDelete: () => undefined,
-            confirm: (answer) => <Confirmation question="Delete company ASML?" answer={answer} />,
+            question: "Delete company ASML?",
+            consequence: "This cannot be undone. Its theses and notes are deleted with it.",
+            confirmLabel: "Delete company",
         },
         children: <CompanyFields company={asml} errors={{}} onChange={() => undefined} />,
     },
@@ -187,9 +174,33 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const ListEditRefuseDelete: Story = { render: () => <CompaniesScreens /> };
+export const ListEditRefuseDelete: Story = {
+    render: () => <CompaniesScreens />,
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await userEvent.click(within(canvas.getByRole("row", { name: /ASML Holding/ })).getByRole("link", { name: "Edit" }));
+        await userEvent.clear(canvas.getByLabelText("Name"));
+        await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+        await expect(canvas.getByText("Write the company's name.")).toBeVisible();
+        await expect(canvas.getByRole("alert")).toHaveTextContent("The company was not saved.");
+        await userEvent.click(canvas.getByRole("button", { name: "Delete" }));
+        const dialog = await within(document.body).findByRole("alertdialog", { name: "Delete company ASML?" });
+        await userEvent.click(within(dialog).getByRole("button", { name: "Delete company" }));
+        await waitFor(() => expect(within(document.body).queryByRole("alertdialog")).toBeNull());
+        await expect(canvas.getByRole("heading", { name: "Companies" })).toBeVisible();
+        await expect(canvas.queryByRole("row", { name: /ASML Holding/ })).toBeNull();
+    },
+};
 
 export const Editing: Story = {};
+
+export const AskingToDelete: Story = {
+    play: async ({ canvasElement }) => {
+        await userEvent.click(within(canvasElement).getByRole("button", { name: "Delete" }));
+        const dialog = await within(document.body).findByRole("alertdialog", { name: "Delete company ASML?" });
+        await expect(within(dialog).getByRole("button", { name: "Keep it" })).toHaveFocus();
+    },
+};
 
 export const Refused: Story = {
     args: {
@@ -209,7 +220,6 @@ export const DeleteBlocked: Story = {
     args: {
         deletion: {
             onDelete: () => undefined,
-            confirm: () => null,
             blocked: "Used in 2 theses. Remove those references first.",
             failure: "The company could not be deleted: the server is not answering.",
         },

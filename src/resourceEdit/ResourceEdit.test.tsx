@@ -3,18 +3,7 @@ import { useState } from "react";
 import { expect, it, vi } from "vitest";
 
 import { ResourceList } from "../resourceList/ResourceList.js";
-import { ResourceEdit, type Deletion } from "./ResourceEdit.js";
-
-const confirm: Deletion["confirm"] = ({ onConfirm, onCancel }) => (
-    <div role="alertdialog" aria-label="Delete company ASML?">
-        <button type="button" onClick={onCancel}>
-            Keep it
-        </button>
-        <button type="button" onClick={onConfirm}>
-            Delete company
-        </button>
-    </div>
-);
+import { ResourceEdit } from "./ResourceEdit.js";
 
 function Companies() {
     const [names, setNames] = useState(["ASML", "DNP"]);
@@ -52,7 +41,8 @@ function Companies() {
             refusal={mistakes.length > 0 ? "The company was not saved." : null}
             mistakes={mistakes}
             deletion={{
-                confirm,
+                question: `Delete company ${open}?`,
+                confirmLabel: "Delete company",
                 onDelete: () => {
                     setNames(names.filter((name) => name !== open));
                     setOpen(null);
@@ -84,7 +74,9 @@ it("goes from the list to the edit screen, shows a refusal, and deletes only aft
     expect(screen.getByRole("alert").textContent).toBe("The company was not saved.Write the ticker.");
 
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
-    fireEvent.click(screen.getByRole("button", { name: "Keep it" }));
+    const asking = screen.getByRole("alertdialog", { name: "Delete company ASML?" });
+    expect(within(asking).getByText("This cannot be undone.")).toBeDefined();
+    fireEvent.click(within(asking).getByRole("button", { name: "Keep it" }));
     expect(screen.queryByRole("alertdialog")).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
@@ -145,7 +137,7 @@ it("a blocked deletion disables Delete and says why, and a refused one shows the
     render(
         <ResourceEdit
             title="Company ASML"
-            deletion={{ confirm, onDelete: vi.fn(), blocked: "Used in 2 theses.", failure: "The server is not answering." }}
+            deletion={{ onDelete: vi.fn(), blocked: "Used in 2 theses.", failure: "The server is not answering." }}
         >
             <p>fields</p>
         </ResourceEdit>,

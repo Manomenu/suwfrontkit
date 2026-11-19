@@ -3,20 +3,35 @@ import { useState, type ReactElement, type ReactNode } from "react";
 import { Alert } from "../alert/Alert.js";
 import { Anchor } from "../anchor/Anchor.js";
 import { Button } from "../button/Button.js";
+import { ConfirmDialog } from "../dialog/ConfirmDialog.js";
 import { Page } from "../page/Page.js";
 import { Paper } from "../paper/Paper.js";
 import { StickyActions } from "../stickyActions/StickyActions.js";
 
 export interface Deletion {
-    onDelete: () => void;
-    confirm: (answer: { onConfirm: () => void; onCancel: () => void }) => ReactNode;
+    onDelete: () => unknown;
+    question?: string;
+    consequence?: ReactNode;
     blocked?: string | null;
     failure?: string | null;
     label?: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    pendingLabel?: string;
 }
 
-function DeleteAction({ deletion }: { deletion: Deletion }) {
-    const { onDelete, confirm, blocked = null, failure = null, label = "Delete" } = deletion;
+function DeleteAction({ deletion, title }: { deletion: Deletion; title: string }) {
+    const {
+        onDelete,
+        question = `Delete ${title}?`,
+        consequence = "This cannot be undone.",
+        blocked = null,
+        failure = null,
+        label = "Delete",
+        confirmLabel = label,
+        cancelLabel = "Keep it",
+        pendingLabel = "Deleting…",
+    } = deletion;
     const [asking, setAsking] = useState(false);
     return (
         <div className="flex flex-col gap-2">
@@ -34,16 +49,17 @@ function DeleteAction({ deletion }: { deletion: Deletion }) {
                 </Button>
                 {blocked !== null && <span className="text-sm text-muted-foreground">{blocked}</span>}
             </div>
-            {asking &&
-                confirm({
-                    onConfirm: () => {
-                        setAsking(false);
-                        onDelete();
-                    },
-                    onCancel: () => {
-                        setAsking(false);
-                    },
-                })}
+            <ConfirmDialog
+                open={asking}
+                onOpenChange={setAsking}
+                title={question}
+                description={consequence}
+                variant="destructive"
+                confirmLabel={confirmLabel}
+                cancelLabel={cancelLabel}
+                pendingLabel={pendingLabel}
+                onConfirm={onDelete}
+            />
         </div>
     );
 }
@@ -152,7 +168,7 @@ export function ResourceEdit({
                         </form>
                     </Paper>
                 )}
-                {deletion !== undefined && <DeleteAction deletion={deletion} />}
+                {deletion !== undefined && <DeleteAction deletion={deletion} title={title} />}
                 {below}
             </Page>
         );

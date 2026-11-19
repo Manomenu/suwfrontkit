@@ -119,29 +119,55 @@ export default defineConfig(
                         },
                         {
                             from: { element: { type: "component", captured: { name: "resourceList" } } },
-                            allow: {
-                                to: [
-                                    { element: { type: "component", captured: { name: "alert" } } },
-                                    { element: { type: "component", captured: { name: "button" } } },
-                                    { element: { type: "component", captured: { name: "page" } } },
-                                    { element: { type: "component", captured: { name: "paginated" } } },
-                                    { element: { type: "component", captured: { name: "paper" } } },
-                                    { element: { type: "component", captured: { name: "table" } } },
-                                ],
-                            },
+                            allow: { to: { element: { type: "component", captured: { name: "alert" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceList" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "button" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceList" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "page" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceList" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "paginated" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceList" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "paper" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceList" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "table" } } } },
                         },
                         {
                             from: { element: { type: "component", captured: { name: "resourceEdit" } } },
-                            allow: {
-                                to: [
-                                    { element: { type: "component", captured: { name: "alert" } } },
-                                    { element: { type: "component", captured: { name: "anchor" } } },
-                                    { element: { type: "component", captured: { name: "button" } } },
-                                    { element: { type: "component", captured: { name: "page" } } },
-                                    { element: { type: "component", captured: { name: "paper" } } },
-                                    { element: { type: "component", captured: { name: "stickyActions" } } },
-                                ],
-                            },
+                            allow: { to: { element: { type: "component", captured: { name: "alert" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceEdit" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "anchor" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceEdit" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "button" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceEdit" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "dialog" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceEdit" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "page" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceEdit" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "paper" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceEdit" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "stickyActions" } } } },
                         },
                     ],
                 },
