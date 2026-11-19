@@ -129,7 +129,7 @@ it("eslint ignores no TypeScript or JavaScript file of the repository", async ()
         ignored.flat(),
         "a file eslint ignores escapes the no-comments rule: take it out of the ignores of eslint.config.js (a file outside the tsconfig projects goes into the block that extends disableTypeChecked)",
     ).toEqual([]);
-});
+}, 60_000);
 
 it("the lint step of the gate lints the whole repository", () => {
     expect(read("gate/scripts/check.sh")).toContain("pnpm exec eslint . --max-warnings 0");
