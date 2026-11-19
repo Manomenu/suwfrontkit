@@ -3,7 +3,8 @@
 `@maniumek/suwfrontstyle`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
-Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, and AppShell with NavLink.
+Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, ToggleChip, ChipFilter, MultiSelect, and
+AppShell with NavLink.
 
 Desktop only (16:9 and 21:9 screens), dark only. Every component is in Storybook (`just storybook`).
 
@@ -65,6 +66,9 @@ export function Companies() {
   the app passes its own `<nav>`.
 - `Page` fills the width (`width="full"`, for tables and charts on wide screens); `width="reading"` keeps forms and text at
   about 80 characters.
+- Choosing several values: `ChipFilter` shows a short, fixed list as chips, all visible at once; `MultiSelect` searches a
+  long or growing list and keeps a chosen value that is no longer offered. Both take `options`, `value` and
+  `onValueChange` from the app and give the value back in the order of the options. `ToggleChip` is one on/off chip.
 - Pin the exact version: every change of the look is a pull request in the app, through its own tests.
 
 ## Develop
