@@ -36,8 +36,18 @@ export class ApiError extends Error {
     }
 }
 
+class PageRequest extends Request {
+    constructor(input: RequestInfo | URL, init?: RequestInit) {
+        super(typeof input === "string" ? new URL(input, globalThis.location.href) : input, init);
+    }
+}
+
 export function createApi<Paths extends object>(options: ClientOptions = {}): Client<Paths> {
-    return createClient<Paths>(options);
+    return createClient<Paths>({
+        Request: PageRequest,
+        fetch: (request: Request) => globalThis.fetch(request),
+        ...options,
+    });
 }
 
 type Answer<Data> = Promise<{ data?: Data; error?: unknown; response: Response }>;

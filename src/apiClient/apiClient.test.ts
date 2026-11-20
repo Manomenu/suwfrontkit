@@ -1,4 +1,4 @@
-import { expect, expectTypeOf, it } from "vitest";
+import { afterEach, expect, expectTypeOf, it, vi } from "vitest";
 
 import { ApiError, createApi, dataOf } from "./apiClient.js";
 
@@ -46,38 +46,34 @@ interface paths {
     };
 }
 
-class PageRequest extends Request {
-    constructor(input: RequestInfo | URL, init?: RequestInit) {
-        super(typeof input === "string" ? new URL(input, "http://127.0.0.1:3330") : input, init);
-    }
-}
+afterEach(() => {
+    vi.unstubAllGlobals();
+});
 
 function answering(status: number, body?: unknown, statusText = "") {
     const seen: Request[] = [];
-    const api = createApi<paths>({
-        Request: PageRequest,
-        fetch: (request: Request) => {
-            seen.push(request);
-            const json = body === undefined ? null : JSON.stringify(body);
-            return Promise.resolve(
-                new Response(json, {
-                    status,
-                    statusText,
-                    headers: json === null ? {} : { "content-type": "application/problem+json" },
-                }),
-            );
-        },
+    const api = createApi<paths>();
+    vi.stubGlobal("fetch", (request: Request) => {
+        seen.push(request);
+        const json = body === undefined ? null : JSON.stringify(body);
+        return Promise.resolve(
+            new Response(json, {
+                status,
+                statusText,
+                headers: json === null ? {} : { "content-type": "application/problem+json" },
+            }),
+        );
     });
     return { api, seen };
 }
 
-it("calls the page's own origin at the contract's path, with the path parameters filled in", async () => {
+it("calls the page's own origin at the contract's path, with the path parameters filled in, through the fetch of the moment", async () => {
     const { api, seen } = answering(200, { ticker: "ASML", name: "ASML Holding" });
 
     const company = await dataOf(api.GET("/api/companies/{ticker}", { params: { path: { ticker: "AS ML" } } }));
 
     expect(company).toEqual({ ticker: "ASML", name: "ASML Holding" });
-    expect(new URL(seen[0]?.url ?? "").pathname).toBe("/api/companies/AS%20ML");
+    expect(seen[0]?.url).toBe(`${window.location.origin}/api/companies/AS%20ML`);
     expectTypeOf(company).toEqualTypeOf<Company>();
 });
 
