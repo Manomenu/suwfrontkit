@@ -9,5 +9,5 @@ Not built yet, in the order an app is likely to need it. Each arrives with the f
 - Labels of Paginated and InfoTip ("Previous", "Next", "About …") as props, when an app is not in English.
 - Icons (lucide), toasts, tabs; a published Storybook.
 - A light theme, only if an app asks for one: a new layer over the same semantic token names.
-- A typed API client: a small fetch wrapper over the types generated from an app's OpenAPI contract (today every app has its own src/api/client.ts), so every web calls its server the same way. Build it with the move of suwstockdrill onto the kit.
+- TanStack Query defaults (a `QueryClient` that does not retry a 4xx `ApiError`), once a second app moves its server state to TanStack Query; suwagcms holds the first copy.
 - Delete `scripts/.internal/visual-update.sh` once suwgate can record the screenshots of its `visual` step itself.
