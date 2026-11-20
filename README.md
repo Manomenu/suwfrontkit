@@ -195,8 +195,10 @@ real `Error` for the error boundary or the refusal, and needs no `!` on its data
 `useLeaveGuard(dirty)` in a form with unsaved changes makes the browser ask before the tab is closed or reloaded, and makes
 `mayLeave()` ask "Discard the changes you have not saved?" (or the question passed as the second argument) before the app
 navigates: the app calls it in its links, Back and Cancel, and goes on only when it returns `true`. `useLeaveGuardActive()`
-tells any component whether a guard is on, for example to disable "Change id" until the form is saved. The guard knows no
-router; one form at a time holds it.
+tells any component whether a guard is on, for example to disable "Change id" until the form is saved. Code outside React
+reads the same with `isLeaveGuardActive()` and hears each change through `onLeaveGuardChange(listener)`, which returns the
+function that stops listening: a live-update channel uses them to skip a reload or a navigation while a form is unsaved, and to
+tell the server the tab has unsaved changes. The guard knows no router; one form at a time holds it.
 
 ## Texts and dates
 

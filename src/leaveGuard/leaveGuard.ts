@@ -10,11 +10,15 @@ function ask(next: string | null) {
     for (const listener of listeners) listener();
 }
 
-function subscribe(listener: () => void): () => void {
+export function onLeaveGuardChange(listener: () => void): () => void {
     listeners.add(listener);
     return () => {
         listeners.delete(listener);
     };
+}
+
+export function isLeaveGuardActive(): boolean {
+    return question !== null;
 }
 
 export function useLeaveGuard(active: boolean, message: string = DISCARD_QUESTION) {
@@ -33,11 +37,7 @@ export function useLeaveGuard(active: boolean, message: string = DISCARD_QUESTIO
 }
 
 export function useLeaveGuardActive(): boolean {
-    return useSyncExternalStore(
-        subscribe,
-        () => question !== null,
-        () => false,
-    );
+    return useSyncExternalStore(onLeaveGuardChange, isLeaveGuardActive, () => false);
 }
 
 export function mayLeave(): boolean {

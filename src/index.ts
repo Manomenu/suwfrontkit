@@ -19,7 +19,7 @@ export { History, type HistoryEntry, type HistoryLabels } from "./history/Histor
 export { InfoTip } from "./infoTip/InfoTip.js";
 export { Input } from "./input/Input.js";
 export { Label } from "./label/Label.js";
-export { mayLeave, useLeaveGuard, useLeaveGuardActive } from "./leaveGuard/leaveGuard.js";
+export { isLeaveGuardActive, mayLeave, onLeaveGuardChange, useLeaveGuard, useLeaveGuardActive } from "./leaveGuard/leaveGuard.js";
 export { MultiSelect } from "./multiSelect/MultiSelect.js";
 export { AppTitle } from "./page/appTitle.js";
 export { Page } from "./page/Page.js";
