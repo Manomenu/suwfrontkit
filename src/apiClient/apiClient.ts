@@ -50,6 +50,13 @@ export function createApi<Paths extends object>(options: ClientOptions = {}): Cl
     });
 }
 
+const MOST_RETRIES = 2;
+
+export function retryUnlessRefused(failures: number, error: unknown): boolean {
+    const refused = error instanceof ApiError && error.status >= 400 && error.status < 500;
+    return !refused && failures < MOST_RETRIES;
+}
+
 type Answer<Data> = Promise<{ data?: Data; error?: unknown; response: Response }>;
 
 export async function dataOf<Data>(call: Answer<Data>): Promise<[Data] extends [never] ? undefined : Data> {

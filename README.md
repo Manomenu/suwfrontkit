@@ -179,8 +179,16 @@ real `Error` for the error boundary or the refusal, and needs no `!` on its data
 - Moving an app over: delete its own hand-written client; each `request<T>("/notes/1")` becomes
   `dataOf(api.GET("/api/notes/{id}", { params: { path: { id } } }))` (a body goes as `body`, unserialized; the query as
   `params.query`), and `new ApiError(message)` in tests becomes `new ApiError(status, { detail: message })`.
-- With TanStack Query, do not retry a refusal: `retry: (failures, error) => !(error instanceof ApiError && error.status < 500) && failures < 2`
-  shows a 404 at once instead of after three retries (suwagcms holds this setting until a second app needs it in the kit).
+- With TanStack Query, give the `QueryClient` `retryUnlessRefused` as its `retry`: a refusal (a 4xx `ApiError`, such as a 404) shows at
+  once instead of after three retries, and a failure that may pass (a 5xx, the network) is asked again at most twice. The kit has no
+  TanStack Query dependency; the function only reads the error:
+
+    ```ts
+    import { retryUnlessRefused } from "@maniumek/suwfrontkit";
+    import { QueryClient } from "@tanstack/react-query";
+
+    export const createQueryClient = () => new QueryClient({ defaultOptions: { queries: { retry: retryUnlessRefused } } });
+    ```
 
 ## Leaving unsaved changes
 
