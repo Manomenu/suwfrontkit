@@ -10,7 +10,9 @@ This repository is a published library: `@maniumek/suwfrontkit` on npmjs.com. It
 
 - For people: a recipe in `justfile`, in a module of the whole repository beside it (`<name>.just`), or in a tool's folder as `<folder>/mod.just`, with a one-line description; `just` lists them.
 - For agents: a script in `scripts/.internal/`; each answers `--help`. A recipe only calls the script. A new check goes into suwgate, or, when only this library has it, into `gate/` and `steps.add` of `suwgate.yml`.
-- `pnpm exec suwgate check --quick` while working, `pnpm exec suwgate check` before calling a change done.
+- While working, `pnpm exec suwgate check --quick`, and `pnpm exec suwgate step <step> [-- <tool args>]` runs one step
+  (`suwgate step` lists them), e.g. `pnpm exec suwgate step stories -- src/button` after changing a component;
+  `pnpm exec suwgate check` before calling a change done.
 
 ## Git
 
