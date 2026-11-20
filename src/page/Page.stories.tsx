@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { expect } from "storybook/test";
 
 import { Badge } from "../badge/Badge.js";
 import { Button } from "../button/Button.js";
@@ -16,6 +17,9 @@ export const FullWidth: Story = {
         actions: <Button>Add a company</Button>,
         titleAside: <Badge variant="info">3 new</Badge>,
         children: <div className="h-40 rounded-lg border border-dashed border-border" />,
+    },
+    play: async () => {
+        await expect(document.title).toBe("Companies");
     },
 };
 

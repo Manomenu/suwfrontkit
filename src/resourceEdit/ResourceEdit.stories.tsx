@@ -69,7 +69,7 @@ const meta = {
         title: "Company ASML",
         back: (label: string) => <a href="#companies">{label}</a>,
         backLabel: "Back to companies",
-        onSubmit: () => undefined,
+        action: (): void => undefined,
         onCancel: () => undefined,
         deletion: {
             onDelete: () => undefined,
@@ -84,6 +84,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Editing: Story = {};
+
+export const Saving: Story = {
+    args: { action: () => new Promise<void>(() => undefined) },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+        const busy = await canvas.findByRole("button", { name: "Saving…" });
+        await expect(busy).toBeDisabled();
+        await expect(busy).toHaveAttribute("aria-busy", "true");
+    },
+};
 
 export const AskingToDelete: Story = {
     play: async ({ canvasElement }) => {
