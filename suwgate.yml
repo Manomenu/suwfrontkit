@@ -14,7 +14,7 @@ settings:
   no-raw-colors:
     folders: [src]
   hooks:
-    protected: [gate/**, visual/*.visual.ts, visual/storybook.ts, knip.config.ts, prettier.config.js]
+    protected: [gate/**, visual/*.visual.ts, visual/storybook.ts]
     generated:
       - path: src/theme/palette.css
         command: just palette
