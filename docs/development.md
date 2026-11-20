@@ -28,7 +28,7 @@ The same without `just`: `bash gate/scripts/check.sh --quick`, `bash gate/script
 
 ## Working next to an app
 
-In the app: `pnpm add link:../suwfrontstyle`; here: `pnpm exec tsc -p tsconfig.build.json -w` after one `pnpm run build`
+In the app: `pnpm add link:../suwfrontkit`; here: `pnpm exec tsc -p tsconfig.build.json -w` after one `pnpm run build`
 (the theme CSS is copied by the build). Tailwind follows the link to `dist/`. A `link:` or `file:` never reaches the app's commit.
 
 ## Spec ↔ guardrails sync

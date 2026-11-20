@@ -1,6 +1,6 @@
 import "./index.css";
 
-import { Diff, History } from "@maniumek/suwfrontstyle";
+import { Diff, History } from "@maniumek/suwfrontkit";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 

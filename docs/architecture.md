@@ -30,9 +30,9 @@ The tarball holds `dist/` only: ESM JavaScript and type declarations per source 
 - The theme (`theme.css`) imports Inter Variable from `@fontsource-variable/inter` (the app's bundler serves the woff2 from its own
   origin, which fits `font-src 'self'`), the palette, and names `dist/` as a Tailwind source, so the app's Tailwind finds the
   classes of the components without a line of its own.
-- The app writes two lines: `@import "tailwindcss";` and `@import "@maniumek/suwfrontstyle/theme.css";`, never inside
+- The app writes two lines: `@import "tailwindcss";` and `@import "@maniumek/suwfrontkit/theme.css";`, never inside
   `layer()`, `supports()` or a media query, where Tailwind refuses `@source`.
-- The diagram is a second entry point (`@maniumek/suwfrontstyle/diagram` with its own CSS), because React Flow, its only
+- The diagram is a second entry point (`@maniumek/suwfrontkit/diagram` with its own CSS), because React Flow, its only
   user, is heavy: `@xyflow/react` is an optional peer, and the main entry never imports it.
 - Semantic tokens keep the names the apps already use (`--primary`, `--muted-foreground`, `--info`); each points at a
   Catppuccin Mocha colour (`--ctp-*`), and tints are `color-mix()` of two of them.

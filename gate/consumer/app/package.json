@@ -1,5 +1,5 @@
 {
-    "name": "suwfrontstyle-consumer",
+    "name": "suwfrontkit-consumer",
     "private": true,
     "type": "module",
     "dependencies": {

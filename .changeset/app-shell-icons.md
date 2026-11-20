@@ -1,5 +1,5 @@
 ---
-"@maniumek/suwfrontstyle": minor
+"@maniumek/suwfrontkit": minor
 ---
 
 AppShell and NavLink require icons: the header shows the app's icon and title as a link home, and the collapsed panel is a strip of the navigation icons with their names in tooltips.
