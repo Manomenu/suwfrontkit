@@ -1,7 +1,7 @@
 import "./index.css";
 
-import { Alert, AppShell, Badge, Button, Field, Input, NavLink, Page, Table } from "@maniumek/suwfrontstyle";
-import { FlowDiagram, type DiagramEdge, type DiagramNode } from "@maniumek/suwfrontstyle/diagram";
+import { Alert, AppShell, Badge, Button, Field, Input, NavLink, Page, Table } from "@maniumek/suwfrontkit";
+import { FlowDiagram, type DiagramEdge, type DiagramNode } from "@maniumek/suwfrontkit/diagram";
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 

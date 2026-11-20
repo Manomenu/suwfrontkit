@@ -10,7 +10,7 @@ Tailwind at the lowest version the package allows, no @source line of its own) i
     components by itself), and the build holds the Inter Variable woff2 files;
   - in Chromium at 1920x1080 and 3440x1440 (gate/consumer/consumer.spec.ts): the components are styled, Inter Variable
     is loaded (document.fonts.check and loaded font faces) from the app's own origin under a font-src 'self' policy, and
-    the AppShell panel collapses and stays collapsed after a reload, and the diagram of @maniumek/suwfrontstyle/diagram
+    the AppShell panel collapses and stays collapsed after a reload, and the diagram of @maniumek/suwfrontkit/diagram
     draws its nodes in the theme's colours and selects one on click;
   - a copy of gate/consumer/plain (no @xyflow/react) builds with the main entry point alone, and its bundle holds no React
     Flow: the diagram stays an optional entry point.
