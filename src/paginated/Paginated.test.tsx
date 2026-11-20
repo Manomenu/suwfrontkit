@@ -41,3 +41,35 @@ it("shows the failure instead of the rows, and a loading line while asking", () 
     rerender(<Paginated paging={{ ...paging, asking: true }}>rows</Paginated>);
     expect(screen.getByText("Loading…")).toBeDefined();
 });
+
+it("speaks the app's language when it passes labels", () => {
+    render(
+        <Paginated
+            paging={{ ...paging, page: 1, pages: 2 }}
+            labels={{ previous: "Wstecz", next: "Dalej", page: (page, pages) => `Strona ${String(page)} z ${String(pages)}` }}
+        >
+            <p>rows</p>
+        </Paginated>,
+    );
+
+    expect(screen.getByRole("button", { name: "Dalej" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Wstecz" })).toBeDefined();
+    expect(screen.getByText("Strona 1 z 2")).toBeDefined();
+});
+
+it("with an unknown total offers the next page while there is one and names no last page", () => {
+    const { rerender } = render(
+        <Paginated paging={{ ...paging, page: 4, pages: 5, hasNext: true }}>
+            <p>rows</p>
+        </Paginated>,
+    );
+    expect(screen.getByText("Page 4")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Next" }).hasAttribute("disabled")).toBe(false);
+
+    rerender(
+        <Paginated paging={{ ...paging, page: 4, pages: 4, hasNext: false }}>
+            <p>rows</p>
+        </Paginated>,
+    );
+    expect(screen.getByRole("button", { name: "Next" }).hasAttribute("disabled")).toBe(true);
+});

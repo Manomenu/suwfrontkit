@@ -1,0 +1,16 @@
+@import "@xyflow/react/base.css";
+
+.react-flow {
+    color-scheme: dark;
+    --xy-background-color: transparent;
+    --xy-edge-stroke: var(--muted-foreground);
+    --xy-edge-stroke-width: 1.5;
+    --xy-edge-stroke-selected: var(--primary);
+    --xy-handle-background-color: transparent;
+    --xy-attribution-background-color: var(--background);
+    --xy-node-color: var(--card-foreground);
+}
+
+.react-flow__attribution a {
+    color: var(--muted-foreground);
+}

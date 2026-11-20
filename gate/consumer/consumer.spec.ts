@@ -26,7 +26,7 @@ for (const [width, height] of [
     [1920, 1080],
     [3440, 1440],
 ] as const) {
-    test(`at ${width}x${height} the installed package draws its styles, loads Inter from the app's origin, and the panel remembers its state`, async ({
+    test(`at ${width}x${height} the installed package draws its styles, loads Inter from the app's origin, and the panel collapses to its icons and remembers it`, async ({
         page,
     }) => {
         await page.setViewportSize({ width, height });
@@ -58,15 +58,41 @@ for (const [width, height] of [
         expect(expandedContent).toBeGreaterThan(width - 300);
         if (shots !== "") await page.screenshot({ path: `${shots}/appshell-${width}x${height}-expanded.png` });
 
+        await expect(page.getByRole("banner").getByRole("link", { name: "consumer" })).toBeVisible();
+        await expect(page.getByRole("link", { name: "Companies" })).toHaveAttribute("aria-current", "page");
+
         await toggleOf(page).click();
         await expect(toggleOf(page)).toHaveAttribute("aria-expanded", "false");
-        await expect(page.getByRole("navigation", { name: "Main" })).toBeHidden();
+        await expect(page.getByRole("navigation", { name: "Main" }).locator("svg")).toHaveCount(7);
+        await expect(page.getByRole("link", { name: "Companies" })).toHaveAttribute("aria-label", "Companies");
         expect(await widthOf(page, "#navigation-panel")).toBeLessThanOrEqual(64);
         expect(await widthOf(page, "main")).toBeGreaterThan(expandedContent + 100);
 
         await page.reload();
         await expect(toggleOf(page)).toHaveAttribute("aria-expanded", "false");
-        await expect(page.getByRole("navigation", { name: "Main" })).toBeHidden();
+        await page.getByRole("link", { name: "Theses" }).hover();
+        await expect(page.getByRole("tooltip")).toHaveText("Theses");
         if (shots !== "") await page.screenshot({ path: `${shots}/appshell-${width}x${height}-collapsed.png` });
+    });
+
+    test(`at ${width}x${height} the diagram of the installed package draws its nodes and edges in the theme's colours and selects a node on click`, async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width, height });
+        await page.goto("/");
+
+        const figure = page.getByRole("figure", { name: "Diagram of the procedure" });
+        await figure.scrollIntoViewIfNeeded();
+        await expect(figure.locator(".react-flow__node")).toHaveCount(3);
+        await expect(figure.locator(".react-flow__node").first()).toHaveCSS("position", "absolute");
+        await expect(figure.locator(".react-flow__edge-path").first()).toHaveCSS("stroke", "rgb(166, 173, 200)");
+        await expect(figure.locator("[data-edge-label]")).toHaveText("yes");
+
+        const check = figure.getByRole("button", { name: /Check arrears/ });
+        await expect(check).toHaveCSS("border-top-color", "rgb(88, 91, 112)");
+        await check.click();
+        await expect(check).toHaveAttribute("aria-current", "true");
+        await expect(check).toHaveCSS("border-top-color", "rgb(203, 166, 247)");
+        if (shots !== "") await figure.screenshot({ path: `${shots}/diagram-${width}x${height}.png` });
     });
 }

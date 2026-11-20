@@ -7,27 +7,46 @@ import { cn } from "../classNames.js";
 export interface Paging {
     page: number;
     pages: number;
+    hasNext?: boolean;
     asking: boolean;
     failure: string | null;
     onMove: (page: number) => void;
 }
 
-export function Paginated({ paging, children }: { paging: Paging; children: ReactNode }) {
+export interface PagingLabels {
+    pages: string;
+    previous: string;
+    next: string;
+    loading: string;
+    page: (page: number, pages: number | null) => string;
+}
+
+const ENGLISH_PAGING: PagingLabels = {
+    pages: "Pages",
+    previous: "Previous",
+    next: "Next",
+    loading: "Loading…",
+    page: (page, pages) => (pages === null ? `Page ${String(page)}` : `Page ${String(page)} of ${String(pages)}`),
+};
+
+export function Paginated({ paging, labels, children }: { paging: Paging; labels?: Partial<PagingLabels>; children: ReactNode }) {
     const top = useRef<HTMLDivElement>(null);
+    const said = { ...ENGLISH_PAGING, ...labels };
     if (paging.failure !== null) return <Alert variant="destructive">{paging.failure}</Alert>;
-    if (paging.asking) return <p className="text-muted-foreground">Loading…</p>;
-    const { page, pages, onMove } = paging;
+    if (paging.asking) return <p className="text-muted-foreground">{said.loading}</p>;
+    const { page, pages, hasNext, onMove } = paging;
     const move = (to: number) => {
         top.current?.scrollIntoView({ block: "start" });
         onMove(to);
     };
-    const alone = pages <= 1;
+    const last = hasNext === undefined ? page >= pages : !hasNext;
+    const alone = page <= 1 && last;
     return (
         <div ref={top} className="flex scroll-mt-20 flex-col gap-2">
             {children}
             <div
                 role="group"
-                aria-label="Pages"
+                aria-label={said.pages}
                 aria-hidden={alone}
                 className={cn("flex items-center justify-center gap-3 text-sm", alone && "invisible")}
             >
@@ -40,19 +59,19 @@ export function Paginated({ paging, children }: { paging: Paging; children: Reac
                         move(page - 1);
                     }}
                 >
-                    Previous
+                    {said.previous}
                 </Button>
-                <span>{`Page ${page} of ${pages}`}</span>
+                <span>{said.page(page, hasNext === undefined ? pages : null)}</span>
                 <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    disabled={page >= pages}
+                    disabled={last}
                     onClick={() => {
                         move(page + 1);
                     }}
                 >
-                    Next
+                    {said.next}
                 </Button>
             </div>
         </div>
