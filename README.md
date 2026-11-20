@@ -171,6 +171,17 @@ export const isMissing = (error: unknown) => error instanceof ApiError && error.
 A function like `companyOf` is what a TanStack Query `queryFn` or a form action calls: it takes the query's `signal`, throws a
 real `Error` for the error boundary or the refusal, and needs no `!` on its data.
 
+- The client resolves the contract's paths against the page's address and calls the page's `fetch` at the moment of each call,
+  so a component that calls the server works in a jsdom unit test, and `vi.stubGlobal("fetch", …)` reaches it even after the
+  client was made.
+- An app's own ProblemDetails extensions are read from `problem`, typed by the app once, for example
+  `const mistakesOf = (error: ApiError) => (Array.isArray(error.problem["mistakes"]) ? (error.problem["mistakes"] as Mistake[]) : [])`.
+- Moving an app over: delete its own hand-written client; each `request<T>("/notes/1")` becomes
+  `dataOf(api.GET("/api/notes/{id}", { params: { path: { id } } }))` (a body goes as `body`, unserialized; the query as
+  `params.query`), and `new ApiError(message)` in tests becomes `new ApiError(status, { detail: message })`.
+- With TanStack Query, do not retry a refusal: `retry: (failures, error) => !(error instanceof ApiError && error.status < 500) && failures < 2`
+  shows a 404 at once instead of after three retries (suwagcms holds this setting until a second app needs it in the kit).
+
 ## Leaving unsaved changes
 
 `useLeaveGuard(dirty)` in a form with unsaved changes makes the browser ask before the tab is closed or reloaded, and makes
