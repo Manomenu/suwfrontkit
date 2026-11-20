@@ -14,7 +14,7 @@ interface Problem {
 }
 
 interface paths {
-    "/companies/{ticker}": {
+    "/api/companies/{ticker}": {
         parameters: { query?: never; header?: never; path: { ticker: string }; cookie?: never };
         get: {
             parameters: { query?: never; header?: never; path: { ticker: string }; cookie?: never };
@@ -33,7 +33,7 @@ interface paths {
             };
         };
     };
-    "/companies": {
+    "/api/companies": {
         parameters: { query?: never; header?: never; path?: never; cookie?: never };
         post: {
             parameters: { query?: never; header?: never; path?: never; cookie?: never };
@@ -71,10 +71,10 @@ function answering(status: number, body?: unknown, statusText = "") {
     return { api, seen };
 }
 
-it("calls the app's own server under /api, with the path parameters filled in", async () => {
+it("calls the page's own origin at the contract's path, with the path parameters filled in", async () => {
     const { api, seen } = answering(200, { ticker: "ASML", name: "ASML Holding" });
 
-    const company = await dataOf(api.GET("/companies/{ticker}", { params: { path: { ticker: "AS ML" } } }));
+    const company = await dataOf(api.GET("/api/companies/{ticker}", { params: { path: { ticker: "AS ML" } } }));
 
     expect(company).toEqual({ ticker: "ASML", name: "ASML Holding" });
     expect(new URL(seen[0]?.url ?? "").pathname).toBe("/api/companies/AS%20ML");
@@ -84,7 +84,7 @@ it("calls the app's own server under /api, with the path parameters filled in", 
 it("sends a JSON body with its content type", async () => {
     const { api, seen } = answering(201, { ticker: "ASML", name: "ASML Holding" });
 
-    await dataOf(api.POST("/companies", { body: { ticker: "ASML", name: "ASML Holding" } }));
+    await dataOf(api.POST("/api/companies", { body: { ticker: "ASML", name: "ASML Holding" } }));
 
     expect(seen[0]?.method).toBe("POST");
     expect(seen[0]?.headers.get("content-type")).toBe("application/json");
@@ -94,7 +94,7 @@ it("sends a JSON body with its content type", async () => {
 it("gives nothing back for 204 No Content", async () => {
     const { api } = answering(204);
 
-    const deleting = dataOf(api.DELETE("/companies/{ticker}", { params: { path: { ticker: "ASML" } } }));
+    const deleting = dataOf(api.DELETE("/api/companies/{ticker}", { params: { path: { ticker: "ASML" } } }));
 
     await expect(deleting).resolves.toBeUndefined();
     expectTypeOf(deleting).resolves.toEqualTypeOf<undefined>();
@@ -103,7 +103,7 @@ it("gives nothing back for 204 No Content", async () => {
 it("throws an ApiError with the status and the ProblemDetails, worded by its detail", async () => {
     const { api } = answering(409, { title: "Conflict", detail: "ASML has theses: delete them first.", status: 409, code: "in-use" });
 
-    const failure = await dataOf(api.DELETE("/companies/{ticker}", { params: { path: { ticker: "ASML" } } })).catch(
+    const failure = await dataOf(api.DELETE("/api/companies/{ticker}", { params: { path: { ticker: "ASML" } } })).catch(
         (error: unknown) => error,
     );
 
@@ -131,7 +131,7 @@ it("words a validation problem by its field messages, then by its title, then by
 it("throws an ApiError for a failure with no body", async () => {
     const { api } = answering(503, undefined, "Service Unavailable");
 
-    await expect(dataOf(api.GET("/companies/{ticker}", { params: { path: { ticker: "ASML" } } }))).rejects.toMatchObject({
+    await expect(dataOf(api.GET("/api/companies/{ticker}", { params: { path: { ticker: "ASML" } } }))).rejects.toMatchObject({
         status: 503,
         message: "503 Service Unavailable",
     });
@@ -140,14 +140,14 @@ it("throws an ApiError for a failure with no body", async () => {
 it("takes another base address", async () => {
     const seen: string[] = [];
     const api = createApi<paths>({
-        baseUrl: "http://127.0.0.1:6330/api",
+        baseUrl: "http://127.0.0.1:6330",
         fetch: (request: Request) => {
             seen.push(request.url);
             return Promise.resolve(new Response(null, { status: 204 }));
         },
     });
 
-    await dataOf(api.DELETE("/companies/{ticker}", { params: { path: { ticker: "ASML" } } }));
+    await dataOf(api.DELETE("/api/companies/{ticker}", { params: { path: { ticker: "ASML" } } }));
 
     expect(seen).toEqual(["http://127.0.0.1:6330/api/companies/ASML"]);
 });

@@ -148,7 +148,8 @@ export function Companies() {
 ## Calling the server
 
 `createApi<paths>()` is an [openapi-fetch](https://openapi-ts.dev/openapi-fetch/) client typed by the `paths` that
-openapi-typescript generates from the app's contract, on `/api` of the page's own origin (`baseUrl` for another; every option
+openapi-typescript generates from the app's contract, whose paths already start with `/api`, on the page's own origin
+(`baseUrl` for another server; every option
 of openapi-fetch's `createClient` passes through, so a header or a middleware is set there). `dataOf(call)` gives the data of
 a call, `undefined` for 204, or throws `ApiError` for any status that is not 2xx: its `status`, the ProblemDetails body as
 `problem` (the app reads its own extensions from it), and a message from `detail`, else the messages of a validation
@@ -162,7 +163,7 @@ import type { paths } from "./openapi";
 export const api = createApi<paths>();
 
 export const companyOf = (ticker: string, signal: AbortSignal) =>
-    dataOf(api.GET("/companies/{ticker}", { params: { path: { ticker } }, signal }));
+    dataOf(api.GET("/api/companies/{ticker}", { params: { path: { ticker } }, signal }));
 
 export const isMissing = (error: unknown) => error instanceof ApiError && error.status === 404;
 ```

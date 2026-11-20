@@ -37,7 +37,7 @@ export class ApiError extends Error {
 }
 
 export function createApi<Paths extends object>(options: ClientOptions = {}): Client<Paths> {
-    return createClient<Paths>({ baseUrl: "/api", ...options });
+    return createClient<Paths>(options);
 }
 
 type Answer<Data> = Promise<{ data?: Data; error?: unknown; response: Response }>;
