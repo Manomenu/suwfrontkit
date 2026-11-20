@@ -1,6 +1,6 @@
 {
     "name": "@maniumek/suwfrontkit",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "description": "Catppuccin Mocha design tokens, Tailwind 4 theme, Inter Variable and React components for desktop web apps",
     "license": "MIT",
     "author": "Manomenu",
