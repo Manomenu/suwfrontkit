@@ -3,7 +3,7 @@
 `@maniumek/suwfrontkit`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
-Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
+Legend, InfoTip, Table, Paper, Panel, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
 Diff, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, ResourceList, ResourceEdit, ToggleChip,
 ChipFilter, MultiSelect, formatting of numbers and times on Intl, and FlowDiagram (a workflow diagram) under its own
 entry point.
@@ -99,12 +99,46 @@ export function Companies() {
 - `AppShell` remembers the collapsed panel under `storageKey` in `localStorage`; it starts expanded. It knows no router:
   the app passes its own `<nav>`.
 - `Page` fills the width (`width="full"`, for tables and charts on wide screens); `width="reading"` keeps forms and text at
-  about 80 characters.
+  about 80 characters. Its `title` also names the browser tab (a React 19 `<title>`, which wins over the one in
+  `index.html`); wrap the app once in `<AppTitle value="myapp">` and every tab reads `Companies · myapp`. Render one `Page`
+  per screen: two at once give the document two titles.
 - `ResourceList` and `ResourceEdit` are the two screens of a resource. They know no router and fetch nothing: links come in
   as render props (`link`, `add`, `back`) that return the app's own `<Link>`, which the library styles; data, state and
-  callbacks come in as props; every label has an English default. `ResourceEdit` with `onSubmit` wraps its children in the
-  form with the refusal, Save and Cancel in `StickyActions`; without it the children stand alone. Asking before leaving
-  unsaved changes stays in the app: it wraps `back` and `onCancel`.
+  callbacks come in as props; every label has an English default. `ResourceEdit` with `action` (or `onSubmit`) wraps its
+  children in the form with the refusal, Save and Cancel in `StickyActions`; without either the children stand alone. Asking
+  before leaving unsaved changes stays in the app: it wraps `back` and `onCancel`.
+- `ResourceEdit` saves through a React form action: `action` gets the form's `FormData`, sync or async, so the fields can be
+  uncontrolled (`name` and `defaultValue`). While it runs, Save reads `Saving…` (`pendingLabel`) and is disabled, and a
+  second submit is ignored. With `useActionState` the result of the save comes back as the refusal and the mistakes. An
+  error thrown by the action goes to the nearest error boundary, as with every React action; after a successful one React
+  resets the uncontrolled fields to their `defaultValue`.
+
+    ```tsx
+    async function saveCompany(_: Refused | null, form: FormData): Promise<Refused | null> {
+        return api.saveCompany(form.get("name"));
+    }
+
+    function EditCompany({ company }: { company: Company }) {
+        const [refused, save] = useActionState(saveCompany, null);
+        return (
+            <ResourceEdit
+                title={`Company ${company.ticker}`}
+                action={save}
+                refusal={refused?.refusal ?? null}
+                mistakes={refused?.mistakes ?? []}
+            >
+                <Input aria-label="Name" name="name" defaultValue={company.name} />
+            </ResourceEdit>
+        );
+    }
+    ```
+
+    The old way, `onSubmit` with `saving`, still works: the app keeps the fields controlled and sets `saving` itself while it
+    saves. Prefer `action` in new screens; one screen takes one of the two, never both.
+
+- `ConfirmDialog` with an `onConfirm` that returns a promise runs it as a transition: the confirm button is busy
+  (`pendingLabel`) and Cancel, Escape and a second confirm do nothing until it settles; it closes when the promise resolves
+  and stays open when it rejects.
 - Choosing several values: `ChipFilter` shows a short, fixed list as chips, all visible at once; `MultiSelect` searches a
   long or growing list and keeps a chosen value that is no longer offered. Both take `options`, `value` and
   `onValueChange` from the app and give the value back in the order of the options. `ToggleChip` is one on/off chip.

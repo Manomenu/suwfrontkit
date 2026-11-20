@@ -1,4 +1,5 @@
-import { useState, type ReactElement, type ReactNode } from "react";
+import { useRef, useState, type SubmitEvent, type ReactElement, type ReactNode } from "react";
+import { useFormStatus } from "react-dom";
 
 import { Alert } from "../alert/Alert.js";
 import { Anchor } from "../anchor/Anchor.js";
@@ -80,6 +81,43 @@ function Refusal({ refusal, mistakes }: { refusal: string | null; mistakes: stri
     );
 }
 
+type Submission =
+    | { action: (formData: FormData) => void | Promise<void>; onSubmit?: never; saving?: never }
+    | { action?: never; onSubmit?: () => void; saving?: boolean };
+
+function useSubmission(action: Submission["action"], onSubmit: Submission["onSubmit"]) {
+    const submitting = useRef(false);
+    if (action !== undefined) {
+        return {
+            action: async (formData: FormData) => {
+                if (submitting.current) return;
+                submitting.current = true;
+                try {
+                    await action(formData);
+                } finally {
+                    submitting.current = false;
+                }
+            },
+        };
+    }
+    if (onSubmit === undefined) return null;
+    return {
+        onSubmit: (event: SubmitEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            onSubmit();
+        },
+    };
+}
+
+function SaveButton({ saving, label, pendingLabel }: { saving: boolean; label: string; pendingLabel: string }) {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={saving || pending} aria-busy={pending}>
+            {pending ? pendingLabel : label}
+        </Button>
+    );
+}
+
 export function ResourceEdit({
     title,
     back,
@@ -92,9 +130,11 @@ export function ResourceEdit({
     loadingLabel = "Loading…",
     above,
     below,
+    action,
     onSubmit,
     saving = false,
     saveLabel = "Save",
+    pendingLabel = "Saving…",
     onCancel,
     cancelLabel = "Cancel",
     footerActions,
@@ -114,9 +154,8 @@ export function ResourceEdit({
     loadingLabel?: string;
     above?: ReactNode;
     below?: ReactNode;
-    onSubmit?: () => void;
-    saving?: boolean;
     saveLabel?: string;
+    pendingLabel?: string;
     onCancel?: () => void;
     cancelLabel?: string;
     footerActions?: ReactNode;
@@ -124,7 +163,8 @@ export function ResourceEdit({
     mistakes?: string[];
     deletion?: Deletion;
     children: ReactNode;
-}) {
+} & Submission) {
+    const submission = useSubmission(action, onSubmit);
     const way =
         back === undefined ? null : (
             <div className="flex items-center gap-1 text-sm">
@@ -140,24 +180,15 @@ export function ResourceEdit({
         return (
             <Page title={title} titleAside={titleAside} actions={actions} width={width}>
                 {above}
-                {onSubmit === undefined ? (
+                {submission === null ? (
                     children
                 ) : (
                     <Paper>
-                        <form
-                            aria-label={title}
-                            className="flex flex-col gap-4"
-                            onSubmit={(event) => {
-                                event.preventDefault();
-                                onSubmit();
-                            }}
-                        >
+                        <form aria-label={title} className="flex flex-col gap-4" {...submission}>
                             {children}
                             <Refusal refusal={refusal} mistakes={mistakes} />
                             <StickyActions>
-                                <Button type="submit" disabled={saving}>
-                                    {saveLabel}
-                                </Button>
+                                <SaveButton saving={saving} label={saveLabel} pendingLabel={pendingLabel} />
                                 {footerActions}
                                 {onCancel !== undefined && (
                                     <Button type="button" variant="outline" onClick={onCancel}>

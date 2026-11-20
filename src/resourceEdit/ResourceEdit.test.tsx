@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { useState } from "react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { useActionState, useState } from "react";
 import { expect, it, vi } from "vitest";
 
 import { ResourceList } from "../resourceList/ResourceList.js";
@@ -96,6 +96,77 @@ it("draws the way back as the app's own link with the default label", () => {
     const back = screen.getByRole("link", { name: "Back to the list" });
     expect(back.getAttribute("href")).toBe("/companies");
     expect(back.className).toContain("text-anchor");
+});
+
+function settled() {
+    const settle = { resolve: () => undefined as unknown };
+    const promise = new Promise<void>((resolve) => {
+        settle.resolve = resolve;
+    });
+    return { promise, settle };
+}
+
+it("hands the form's data to the action, shows Saving… and refuses a second submit until it finishes", async () => {
+    const saved = settled();
+    const action = vi.fn((formData: FormData) => {
+        expect(formData.get("ticker")).toBe("ASML");
+        return saved.promise;
+    });
+    render(
+        <ResourceEdit title="Company ASML" action={action}>
+            <input aria-label="Ticker" name="ticker" defaultValue="ASML" />
+        </ResourceEdit>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    const busy = await screen.findByRole("button", { name: "Saving…" });
+    expect(busy).toHaveProperty("disabled", true);
+    expect(busy.getAttribute("aria-busy")).toBe("true");
+    fireEvent.click(busy);
+    fireEvent.submit(screen.getByRole("form", { name: "Company ASML" }));
+
+    await act(async () => {
+        saved.settle.resolve();
+        await saved.promise;
+    });
+
+    expect(action).toHaveBeenCalledOnce();
+    expect(screen.getByRole("button", { name: "Save" })).toHaveProperty("disabled", false);
+});
+
+it("shows what the action returned through useActionState, the way an app reports a refused save", async () => {
+    function Company() {
+        const [mistakes, save] = useActionState(
+            (_previous: string[], formData: FormData) => (formData.get("ticker") === "" ? ["Write the ticker."] : []),
+            [],
+        );
+        return (
+            <ResourceEdit
+                title="Company ASML"
+                action={save}
+                refusal={mistakes.length > 0 ? "The company was not saved." : null}
+                mistakes={mistakes}
+            >
+                <input aria-label="Ticker" name="ticker" defaultValue="" />
+            </ResourceEdit>
+        );
+    }
+    render(<Company />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    expect((await screen.findByRole("alert")).textContent).toBe("The company was not saved.Write the ticker.");
+});
+
+it("submits one way: an action, or onSubmit with saving, never both", () => {
+    render(
+        // @ts-expect-error an action and onSubmit together would leave it unclear which one saves
+        <ResourceEdit title="Company ASML" action={vi.fn()} onSubmit={vi.fn()}>
+            <p>fields</p>
+        </ResourceEdit>,
+    );
+
+    expect(screen.getByRole("form", { name: "Company ASML" })).toBeDefined();
 });
 
 it("without onSubmit draws the children as they are, with no form and no save button", () => {

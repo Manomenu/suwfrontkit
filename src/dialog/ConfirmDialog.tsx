@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useTransition, type ReactNode } from "react";
 import { AlertDialog } from "radix-ui";
 
 import { Button } from "../button/Button.js";
@@ -28,7 +28,7 @@ export function ConfirmDialog({
     cancelLabel?: string;
     pendingLabel?: string;
 }) {
-    const [pending, setPending] = useState(false);
+    const [pending, startTransition] = useTransition();
     const returnFocus = useReturnFocus(open);
 
     const confirm = () => {
@@ -38,16 +38,16 @@ export function ConfirmDialog({
             onOpenChange(false);
             return;
         }
-        setPending(true);
-        void outcome.then(
-            () => {
-                setPending(false);
+        startTransition(async () => {
+            try {
+                await outcome;
+            } catch {
+                return;
+            }
+            startTransition(() => {
                 onOpenChange(false);
-            },
-            () => {
-                setPending(false);
-            },
-        );
+            });
+        });
     };
 
     return (
