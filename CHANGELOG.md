@@ -1,4 +1,4 @@
-# @maniumek/suwfrontstyle
+# @maniumek/suwfrontkit
 
 ## 0.1.0
 

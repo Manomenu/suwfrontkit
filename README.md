@@ -1,6 +1,6 @@
-# suwfrontstyle
+# suwfrontkit
 
-`@maniumek/suwfrontstyle`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
+`@maniumek/suwfrontkit`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
 Legend, InfoTip, Table, Paper, Panel, Page, StickyActions, Paginated, Anchor, ToggleChip, ChipFilter, MultiSelect, and
@@ -8,26 +8,43 @@ AppShell with NavLink.
 
 Desktop only (16:9 and 21:9 screens), dark only. Every component is in Storybook (`just storybook`).
 
+## Renamed from suwfrontstyle
+
+The package was `@maniumek/suwfrontstyle` up to 0.1.0 and is now `@maniumek/suwfrontkit`: the same code under a new
+name; the old package is deprecated. An app moves over with:
+
+```sh
+pnpm remove @maniumek/suwfrontstyle && pnpm add --save-exact @maniumek/suwfrontkit
+```
+
+then replaces `@maniumek/suwfrontstyle` with `@maniumek/suwfrontkit` in its imports and in `minimumReleaseAgeExclude`
+of its `pnpm-workspace.yaml`. The CSS entry becomes:
+
+```css
+@import "tailwindcss";
+@import "@maniumek/suwfrontkit/theme.css";
+```
+
 ## Use it in an app
 
 The app needs React 19, Tailwind 4.3 or newer with its Vite plugin, and pnpm.
 
 ```sh
-pnpm add --save-exact @maniumek/suwfrontstyle
+pnpm add --save-exact @maniumek/suwfrontkit
 ```
 
 `pnpm-workspace.yaml` of the app, so a release is installable on the day it comes out (pnpm 11 waits a day otherwise):
 
 ```yaml
 minimumReleaseAgeExclude:
-    - "@maniumek/suwfrontstyle"
+    - "@maniumek/suwfrontkit"
 ```
 
 The app's CSS entry (`src/index.css`) is these two lines and nothing else of the theme:
 
 ```css
 @import "tailwindcss";
-@import "@maniumek/suwfrontstyle/theme.css";
+@import "@maniumek/suwfrontkit/theme.css";
 ```
 
 `theme.css` brings the tokens, `color-scheme: dark`, the base styles and Inter Variable (the app's bundler serves the
@@ -35,7 +52,7 @@ woff2 from the app's own origin, so `font-src 'self'` is enough), and it tells T
 are. Never import it inside `layer()`, `supports()` or a media query: Tailwind then refuses its `@source`.
 
 ```tsx
-import { AppShell, Button, NavLink, Page } from "@maniumek/suwfrontstyle";
+import { AppShell, Button, NavLink, Page } from "@maniumek/suwfrontkit";
 import { Link } from "wouter";
 
 export function Shell({ children }: { children: React.ReactNode }) {
@@ -83,12 +100,12 @@ pull request that CI keeps open, and CI publishes with provenance.
 
 The first version is published by hand, once, because npm configures a trusted publisher on a package that exists:
 
-1. Create the public GitHub repository Manomenu/suwfrontstyle and push `master`. In its Settings, Actions, General, allow
+1. Create the public GitHub repository Manomenu/suwfrontkit and push `master`. In its Settings, Actions, General, allow
    GitHub Actions to create and approve pull requests.
 2. On this machine, logged in to npm as `maniumek` with two-factor authentication: `npm login`, then
-   `pnpm publish --access public`. This publishes 0.0.0 (`prepack` builds `dist/` first).
+   `pnpm publish --access public`. This publishes the version in `package.json` (`prepack` builds `dist/` first).
 3. On npmjs.com, the package's Settings, Trusted Publisher, GitHub Actions: organization or user `Manomenu`, repository
-   `suwfrontstyle`, workflow filename `ci.yml`, no environment, and allow `npm publish` (new configurations allow only
+   `suwfrontkit`, workflow filename `ci.yml`, no environment, and allow `npm publish` (new configurations allow only
    staged publishing until it is ticked).
 4. Within two days (an unused configuration expires): merge the "Version Packages" pull request that CI opened from the
    waiting changeset. CI publishes 0.1.0 through OIDC, with provenance.

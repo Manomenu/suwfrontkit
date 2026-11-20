@@ -3,7 +3,7 @@
 Rules for anyone, human or AI agent, changing this repository. `CLAUDE.md` only points here;
 this file is the one to edit. Setup: [docs/development.md](docs/development.md). Not built yet: [TODO.md](TODO.md).
 
-This repository is a published library: `@maniumek/suwfrontstyle` on npmjs.com. Its public API (`src/index.ts`,
+This repository is a published library: `@maniumek/suwfrontkit` on npmjs.com. Its public API (`src/index.ts`,
 `theme.css` and every token name in it) is a contract with the apps that install it.
 
 ## Commands

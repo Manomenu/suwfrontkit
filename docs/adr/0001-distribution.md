@@ -7,8 +7,9 @@ system, and the copies drift. The library must reach every app on a laptop, in C
 
 ## Decision
 
-One public package, `@maniumek/suwfrontstyle` (the owner's npm user scope), on npmjs.com, built from one package at the
-root of the public repository Manomenu/suwfrontstyle.
+One public package, `@maniumek/suwfrontkit` (the owner's npm user scope), on npmjs.com, built from one package at the
+root of the public repository Manomenu/suwfrontkit. Up to 0.1.0 the package and the repository were named suwfrontstyle;
+the old package is deprecated.
 
 - Published only from GitHub Actions with npm trusted publishing (OIDC): no long-lived token, provenance attached.
 - Versions and the CHANGELOG come from changesets; 0.x until the first app runs on it, with minor allowed to break.
