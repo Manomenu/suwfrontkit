@@ -6,7 +6,7 @@ import { Alert } from "../alert/Alert.js";
 import { ApiError, createApi, dataOf } from "./apiClient.js";
 
 interface paths {
-    "/companies/{ticker}": {
+    "/api/companies/{ticker}": {
         delete: {
             parameters: { path: { ticker: string } };
             responses: {
@@ -30,7 +30,7 @@ const api = createApi<paths>({
 function DeleteRefused() {
     const [refusal, setRefusal] = useState<ApiError | null>(null);
     useEffect(() => {
-        dataOf(api.DELETE("/companies/{ticker}", { params: { path: { ticker: "ASML" } } })).catch((error: unknown) => {
+        dataOf(api.DELETE("/api/companies/{ticker}", { params: { path: { ticker: "ASML" } } })).catch((error: unknown) => {
             if (error instanceof ApiError) setRefusal(error);
         });
     }, []);
