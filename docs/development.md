@@ -22,7 +22,8 @@ just changeset        # describe a change of src/ for the next release
 just palette          # regenerate src/theme/palette.css
 ```
 
-The same without `just`: `pnpm exec suwgate check --quick`, `pnpm exec suwgate check` (`--verbose` lists every step). The
+The same without `just`: `pnpm exec suwgate check --quick`, `pnpm exec suwgate check` (`--verbose` lists every step);
+`pnpm exec suwgate step <step> [-- <tool args>]` runs one step and the steps it needs (`pnpm exec suwgate step visual`). The
 gate is [suwgate](https://github.com/Manomenu/suwgate): `suwgate.yml` names the `library` profile, the steps this library adds
 (`palette`, `library-guards`) and the settings of its guards; suwgate's README says what each step and guard checks.
 
