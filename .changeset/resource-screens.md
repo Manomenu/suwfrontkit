@@ -1,5 +1,5 @@
 ---
-"@maniumek/suwfrontstyle": minor
+"@maniumek/suwfrontkit": minor
 ---
 
 ResourceList and ResourceEdit, the list and the edit screen of a resource, built from Page, Table, Paginated, Paper,
