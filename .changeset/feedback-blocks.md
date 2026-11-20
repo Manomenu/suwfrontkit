@@ -1,5 +1,5 @@
 ---
-"@maniumek/suwfrontstyle": minor
+"@maniumek/suwfrontkit": minor
 ---
 
 Feedback blocks:
