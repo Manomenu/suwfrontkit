@@ -1,10 +1,5 @@
 {
-    "extends": "./tsconfig.json",
-    "compilerOptions": {
-        "lib": ["ES2022", "DOM"],
-        "types": ["node"],
-        "allowImportingTsExtensions": true
-    },
+    "extends": "@maniumek/suwgate/tsconfig/node",
     "include": ["*.config.ts", ".storybook/main.ts", "gate", "scripts/.internal/*.ts", "visual"],
-    "exclude": ["gate/consumer/app", "gate/consumer/plain"]
+    "exclude": ["gate/consumer/app"]
 }

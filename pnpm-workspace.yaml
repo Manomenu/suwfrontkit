@@ -1,3 +1,5 @@
 allowBuilds:
   esbuild: true
   unrs-resolver: false
+minimumReleaseAgeExclude:
+  - "@maniumek/suwgate@0.1.0"

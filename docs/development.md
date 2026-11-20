@@ -3,28 +3,28 @@
 ## Requirements
 
 - Node 24 and pnpm 11 (`corepack enable`), `just`.
-- A POSIX shell: on Windows use Git Bash (the scripts in `gate/scripts/` and `scripts/.internal/` are bash; run them with
-  `bash gate/scripts/check.sh`). Agents call the scripts directly, humans use `just`.
+- A POSIX shell: on Windows use Git Bash (the steps of the gate and the scripts in `scripts/.internal/` are bash). Agents call
+  `pnpm exec suwgate check` and the scripts directly, humans use `just`.
 - Once per machine `pnpm exec playwright install chromium` (`just sync` does it), for the story tests and the consumer test.
 - Docker or Podman (as `docker`) for the visual tests: they run in `mcr.microsoft.com/playwright:v1.65.1-noble`, so a screenshot
   taken on a laptop matches CI.
-- For the full gate: `shellcheck`, `gitleaks` and `python3`. A missing tool is reported as SKIP (a failure in CI), and the
-  report ends with `NOT VERIFIED: <steps>`.
+- For the full gate: `shellcheck`, `gitleaks`, `python3` and `curl`. A missing tool is reported as SKIP, a failure in CI.
 
 ## Everyday commands
 
 ```sh
 just                  # every recipe, grouped
 just storybook        # every component in every state, on http://localhost:6006
-just check-quick      # guards, palette, and tsc, eslint, shellcheck for what changed: seconds
+just check-quick      # the guards, palette, and tsc, eslint, shellcheck for what changed: seconds
 just check            # the whole gate, the same CI runs
 just visual-update    # record the screenshots again after a deliberate change of the look
-just package --shots /tmp/shots   # the consumer app, with screenshots of the AppShell at 1920x1080 and 3440x1440
 just changeset        # describe a change of src/ for the next release
 just palette          # regenerate src/theme/palette.css
 ```
 
-The same without `just`: `bash gate/scripts/check.sh --quick`, `bash gate/scripts/check.sh`.
+The same without `just`: `pnpm exec suwgate check --quick`, `pnpm exec suwgate check` (`--verbose` lists every step). The
+gate is [suwgate](https://github.com/Manomenu/suwgate): `suwgate.yml` names the `library` profile, the steps this library adds
+(`palette`, `library-guards`) and the settings of its guards; suwgate's README says what each step and guard checks.
 
 ## Working next to an app
 
@@ -46,7 +46,7 @@ why; its acceptance criteria are the contract:
 3. **A spec written ahead of its feature is a draft** in `docs/draft/spec/`: the gate reads only `docs/visual/spec/`,
    where every criterion without a guardrail fails it. The draft moves there when its feature is built, together
    with its tests.
-4. **The full gate checks the link both ways** (`check.sh`, not `--quick`, so an agent can stop and ask
+4. **The full gate checks the link both ways** (`suwgate check`, not `--quick`, so an agent can stop and ask
    about a criterion mid-work):
 
 | The gate fails when                                                                          | What to do                                                         |
@@ -57,17 +57,18 @@ why; its acceptance criteria are the contract:
 | a spec has no acceptance section, a criterion without an id or with two, an id defined twice | fix the spec (`vdoc.py ids` numbers new criteria)                  |
 
 **How it runs.** The check is `vdoc.py criteria` of the
-[suwagent plugin](https://github.com/Manomenu/suwalski-agent-plugin). `gate/scripts/criteria.sh`
-downloads it at the commit and SHA-256 it pins (into `~/.cache/suwagent/`), the same on a laptop and in
-CI, and runs it with `gate/criteria.json`. `just criteria-update` moves the pin to the plugin's newest
-version; without a network the step is a SKIP locally and a failure in CI.
+[suwagent plugin](https://github.com/Manomenu/suwalski-agent-plugin). The `criteria` step of suwgate
+downloads it at the commit and SHA-256 suwgate pins (into `~/.cache/suwagent/`), the same on a laptop and in
+CI, and runs it with the library profile's kinds plus those of `criteria.json`. A new suwgate version moves the pin;
+without a network the step is a SKIP locally and a failure in CI.
 
 What it cannot see: whether a guardrail would really fail when the behaviour breaks.
 `/suwagent:visual-guardrails` checks that before a merge.
 
 ## Kinds of guardrail
 
-A spec's acceptance criterion is guarded by one of these (`gate/criteria.json`):
+A spec's acceptance criterion is guarded by one of these: the kinds of suwgate's library profile, and `gate test (vitest)`,
+which `criteria.json` adds:
 
 | Kind                            | Where                     | How it names the id                             |
 | :------------------------------ | :------------------------ | :---------------------------------------------- |
@@ -81,21 +82,18 @@ A spec's acceptance criterion is guarded by one of these (`gate/criteria.json`):
 
 ## Claude Code hooks
 
-`.claude/settings.json` runs `gate/scripts/check.sh --quick` when Claude stops, and blocks the stop while it fails (the
-loop is cut after one retry). The quick gate has a budget of 20 seconds and fails above it; `CHECK_QUICK_LIMIT=<seconds>`
-raises it on a machine that is slow across the board. When the working tree is exactly as it was at the last green quick
-gate (same HEAD, same changes, same untracked files), the hook does not run it again; HEAD counts, because a change
-committed in the same turn leaves `git status` clean. It costs what the change costs: the repository guards and the palette,
-plus tsc, eslint and shellcheck only for what differs from where the branch left `master` (committed or not, and new files).
-No browser; the tests that prove acceptance criteria run only in the full gate.
+`.claude/settings.json` runs `suwgate hook stop` when Claude stops: the quick gate, which blocks the stop while it fails. It
+has a budget of 20 seconds and fails above it (`SUWGATE_QUICK_LIMIT=<seconds>` raises it on a machine that is slow across the
+board), and it is not run again while nothing changed since it last passed. It costs what the change costs: the repository
+guards, the palette and the library's guards, plus tsc, eslint and shellcheck only for what differs from where the branch left
+`master`. No browser; the tests that prove acceptance criteria run only in the full gate.
 
-A second hook refuses an agent's edit of the gate, the lint, type, test and release configs (`ALLOW_GATE_EDIT=1 claude`
-lifts it for one session), of the lockfile, of the generated palette and of the recorded screenshots, each with the command
-that regenerates it. It guards only this project's files (`CLAUDE_PROJECT_DIR`, or the checkout the script sits in), so a
-session started here can still edit another project's configs.
+`suwgate hook guard-edit` refuses an agent's edit of the gate, the lint, type, test and release configs, `gate/` and the
+visual tests (`ALLOW_GATE_EDIT=1 claude` lifts it for one session), of the lockfile, of the generated palette and of the
+recorded screenshots, each with the command that regenerates it. It guards only this project's files.
 
-`.githooks/pre-commit` runs gitleaks on what is being committed: the full gate and CI run it too, but a secret found after the
-push is already on GitHub and in every clone.
+`.githooks/pre-commit` runs `suwgate hook pre-commit`: gitleaks on what is being committed (a secret found after the push is
+already on GitHub and in every clone), then the quick gate.
 
 ## Personal agent rules
 
@@ -105,7 +103,7 @@ Claude Code loads it, and git ignores it.
 ## Worktrees
 
 Two checkouts (agents in worktrees) can run the full gate at once: the visual tests run inside their own container, and the
-consumer test serves its app on a free port of 127.0.0.1 (`package.sh`).
+consumer test serves its app on a free port of 127.0.0.1.
 
 ## Editors
 

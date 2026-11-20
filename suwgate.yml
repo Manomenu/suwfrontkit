@@ -1,0 +1,22 @@
+profiles: [library]
+steps:
+  add:
+    - name: palette
+      title: palette.css generated from @catppuccin/palette (palette.ts --check)
+      run: node scripts/.internal/palette.ts --check
+      quick: true
+    - name: library-guards
+      title: the library's own guards (vitest project gate)
+      run: pnpm exec vitest run --project gate
+      quick: true
+      after: [pnpm-install]
+settings:
+  no-raw-colors:
+    folders: [src]
+  hooks:
+    protected: [gate/**, visual/*.visual.ts, visual/storybook.ts, knip.config.ts, prettier.config.js]
+    generated:
+      - path: src/theme/palette.css
+        command: just palette
+      - path: visual/snapshots/**
+        command: just visual-update

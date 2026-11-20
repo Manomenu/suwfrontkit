@@ -24,42 +24,20 @@ palette:
 changeset:
     pnpm changeset
 
-# Which guardrails keep each acceptance criterion of the specs true: id, kind, file:line (or one: just criteria AC-<feature>-<n>)
-[group('run')]
-[positional-arguments]
-criteria *args:
-    @./gate/scripts/criteria.sh "$@"
-
-# Move the pinned vdoc.py of the acceptance criteria check to the suwagent plugin's newest master
-[group('run')]
-criteria-update:
-    @./gate/scripts/criteria.sh --update
-
-# The package as an app installs it: pnpm pack, publint, attw, a consumer app in Chromium (screenshots with --shots <folder>)
-[group('maintenance')]
-[positional-arguments]
-package *args:
-    @./gate/scripts/package.sh "$@"
-
-# Visual regression, axe and the font test of every story, in the pinned Playwright image
-[group('maintenance')]
-visual:
-    @./gate/scripts/visual.sh
-
 # Record the screenshots again after a deliberate change of the look; read the diff of every changed image
 [group('maintenance')]
 visual-update:
-    @./gate/scripts/visual.sh --update
+    @./scripts/.internal/visual-update.sh
 
-# The whole gate, the same CI runs
+# The whole gate, the same CI runs (suwgate check: the steps of the library profile, the guards, suwgate.yml)
 [group('maintenance')]
 check:
-    @./gate/scripts/check.sh
+    pnpm exec suwgate check
 
-# The quick gate: guards, palette, and tsc, eslint, shellcheck for what changed (what the Claude Code Stop hook runs)
+# The quick gate: the guards, palette and the library's guards, and tsc, eslint, shellcheck for what changed (what the Stop hook runs)
 [group('maintenance')]
 check-quick:
-    @./gate/scripts/check.sh --quick
+    pnpm exec suwgate check --quick
 
 # Format the code with Prettier
 [group('maintenance')]
