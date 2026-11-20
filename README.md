@@ -5,7 +5,8 @@ shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, 
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
 Legend, InfoTip, Table, Paper, Panel, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
 Diff, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, ResourceList, ResourceEdit, ToggleChip,
-ChipFilter, MultiSelect, formatting of numbers and times on Intl, and FlowDiagram (a workflow diagram) under its own
+ChipFilter, MultiSelect, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
+leave guard for unsaved changes, and FlowDiagram (a workflow diagram) under its own
 entry point.
 
 Desktop only (16:9 and 21:9 screens), dark only. Every component is in Storybook (`just storybook`).
@@ -106,7 +107,7 @@ export function Companies() {
   as render props (`link`, `add`, `back`) that return the app's own `<Link>`, which the library styles; data, state and
   callbacks come in as props; every label has an English default. `ResourceEdit` with `action` (or `onSubmit`) wraps its
   children in the form with the refusal, Save and Cancel in `StickyActions`; without either the children stand alone. Asking
-  before leaving unsaved changes stays in the app: it wraps `back` and `onCancel`.
+  before leaving unsaved changes stays in the app: it wraps `back` and `onCancel` with `mayLeave()` (below).
 - `ResourceEdit` saves through a React form action: `action` gets the form's `FormData`, sync or async, so the fields can be
   uncontrolled (`name` and `defaultValue`). While it runs, Save reads `Saving…` (`pendingLabel`) and is disabled, and a
   second submit is ignored. With `useActionState` the result of the save comes back as the refusal and the mistakes. An
@@ -143,6 +144,39 @@ export function Companies() {
   long or growing list and keeps a chosen value that is no longer offered. Both take `options`, `value` and
   `onValueChange` from the app and give the value back in the order of the options. `ToggleChip` is one on/off chip.
 - Pin the exact version: every change of the look is a pull request in the app, through its own tests.
+
+## Calling the server
+
+`createApi<paths>()` is an [openapi-fetch](https://openapi-ts.dev/openapi-fetch/) client typed by the `paths` that
+openapi-typescript generates from the app's contract, on `/api` of the page's own origin (`baseUrl` for another; every option
+of openapi-fetch's `createClient` passes through, so a header or a middleware is set there). `dataOf(call)` gives the data of
+a call, `undefined` for 204, or throws `ApiError` for any status that is not 2xx: its `status`, the ProblemDetails body as
+`problem` (the app reads its own extensions from it), and a message from `detail`, else the messages of a validation
+problem's `errors`, else `title`, else the status line.
+
+```ts
+import { ApiError, createApi, dataOf } from "@maniumek/suwfrontkit";
+
+import type { paths } from "./openapi";
+
+export const api = createApi<paths>();
+
+export const companyOf = (ticker: string, signal: AbortSignal) =>
+    dataOf(api.GET("/companies/{ticker}", { params: { path: { ticker } }, signal }));
+
+export const isMissing = (error: unknown) => error instanceof ApiError && error.status === 404;
+```
+
+A function like `companyOf` is what a TanStack Query `queryFn` or a form action calls: it takes the query's `signal`, throws a
+real `Error` for the error boundary or the refusal, and needs no `!` on its data.
+
+## Leaving unsaved changes
+
+`useLeaveGuard(dirty)` in a form with unsaved changes makes the browser ask before the tab is closed or reloaded, and makes
+`mayLeave()` ask "Discard the changes you have not saved?" (or the question passed as the second argument) before the app
+navigates: the app calls it in its links, Back and Cancel, and goes on only when it returns `true`. `useLeaveGuardActive()`
+tells any component whether a guard is on, for example to disable "Change id" until the form is saved. The guard knows no
+router; one form at a time holds it.
 
 ## Texts and dates
 

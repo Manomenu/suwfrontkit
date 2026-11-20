@@ -1,5 +1,6 @@
 export { Alert } from "./alert/Alert.js";
 export { Anchor } from "./anchor/Anchor.js";
+export { ApiError, createApi, dataOf } from "./apiClient/apiClient.js";
 export { AppShell } from "./appShell/AppShell.js";
 export { NavLink } from "./appShell/NavLink.js";
 export { Badge } from "./badge/Badge.js";
@@ -18,6 +19,7 @@ export { History, type HistoryEntry, type HistoryLabels } from "./history/Histor
 export { InfoTip } from "./infoTip/InfoTip.js";
 export { Input } from "./input/Input.js";
 export { Label } from "./label/Label.js";
+export { mayLeave, useLeaveGuard, useLeaveGuardActive } from "./leaveGuard/leaveGuard.js";
 export { MultiSelect } from "./multiSelect/MultiSelect.js";
 export { AppTitle } from "./page/appTitle.js";
 export { Page } from "./page/Page.js";
