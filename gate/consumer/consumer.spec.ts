@@ -1,6 +1,9 @@
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+
 import { expect, test, type Page } from "@playwright/test";
 
-const shots = process.env["CONSUMER_SHOTS"] ?? "";
+const app = process.env["CONSUMER_APP"] ?? path.resolve(import.meta.dirname, "app");
 
 const toggleOf = (page: Page) => page.getByRole("button", { name: "Navigation panel" });
 
@@ -21,6 +24,22 @@ async function interLoaded(page: Page): Promise<{ check: boolean; loaded: number
         };
     });
 }
+
+test("the app's built CSS holds the utilities of the package's components, the theme and Inter, and its build holds the Inter woff2", () => {
+    const assets = readdirSync(path.join(app, "dist/assets"));
+    const css = assets
+        .filter((file) => file.endsWith(".css"))
+        .map((file) => readFileSync(path.join(app, "dist/assets", file), "utf8"))
+        .join("\n");
+
+    for (const needle of [".bg-primary", ".text-primary-foreground", "--ctp-mauve", "Inter Variable"]) {
+        expect(css, `theme.css no longer brings ${needle}: its @source line or its imports`).toContain(needle);
+    }
+    expect(
+        assets.some((file) => /^inter-latin-wght-normal.*\.woff2$/.test(file)),
+        "theme.css must import @fontsource-variable/inter/wght.css",
+    ).toBe(true);
+});
 
 for (const [width, height] of [
     [1920, 1080],
@@ -56,7 +75,6 @@ for (const [width, height] of [
         await expect(toggleOf(page)).toHaveAttribute("aria-expanded", "true");
         const expandedContent = await widthOf(page, "main");
         expect(expandedContent).toBeGreaterThan(width - 300);
-        if (shots !== "") await page.screenshot({ path: `${shots}/appshell-${width}x${height}-expanded.png` });
 
         await expect(page.getByRole("banner").getByRole("link", { name: "consumer" })).toBeVisible();
         await expect(page.getByRole("link", { name: "Companies" })).toHaveAttribute("aria-current", "page");
@@ -72,7 +90,6 @@ for (const [width, height] of [
         await expect(toggleOf(page)).toHaveAttribute("aria-expanded", "false");
         await page.getByRole("link", { name: "Theses" }).hover();
         await expect(page.getByRole("tooltip")).toHaveText("Theses");
-        if (shots !== "") await page.screenshot({ path: `${shots}/appshell-${width}x${height}-collapsed.png` });
     });
 
     test(`at ${width}x${height} the diagram of the installed package draws its nodes and edges in the theme's colours and selects a node on click`, async ({
@@ -93,6 +110,5 @@ for (const [width, height] of [
         await check.click();
         await expect(check).toHaveAttribute("aria-current", "true");
         await expect(check).toHaveCSS("border-top-color", "rgb(203, 166, 247)");
-        if (shots !== "") await figure.screenshot({ path: `${shots}/diagram-${width}x${height}.png` });
     });
 }

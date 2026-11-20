@@ -14,7 +14,3 @@ export function paths(): string[] {
 export function read(file: string): string {
     return readFileSync(path.join(ROOT, file), "utf8");
 }
-
-export function fileName(file: string): string {
-    return path.posix.basename(file);
-}

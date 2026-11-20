@@ -4,7 +4,7 @@
         {
             "label": "check --quick",
             "type": "shell",
-            "command": "bash gate/scripts/check.sh --quick",
+            "command": "pnpm exec suwgate check --quick",
             "group": { "kind": "test", "isDefault": true },
             "presentation": { "reveal": "always", "panel": "dedicated" },
             "problemMatcher": []
@@ -12,7 +12,7 @@
         {
             "label": "check (full gate)",
             "type": "shell",
-            "command": "bash gate/scripts/check.sh",
+            "command": "pnpm exec suwgate check",
             "group": "test",
             "presentation": { "reveal": "always", "panel": "dedicated" },
             "problemMatcher": []

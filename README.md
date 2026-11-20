@@ -195,13 +195,15 @@ A breaking change: the header and the navigation now require icons.
 
 ## Develop
 
-[docs/development.md](docs/development.md): requirements, commands, working next to an app with `link:`.
+[docs/development.md](docs/development.md): requirements, commands, working next to an app with `link:`. The quality gate is
+[suwgate](https://github.com/Manomenu/suwgate) (`pnpm exec suwgate check`, configured in `suwgate.yml`).
 Rules for changing the library: [AGENTS.md](AGENTS.md). How it is built: [docs/architecture.md](docs/architecture.md).
 
 ## Release
 
-Changesets and npm trusted publishing from GitHub Actions (`.github/workflows/ci.yml`): merge the "Version Packages"
-pull request that CI keeps open, and CI publishes with provenance.
+Changesets and npm trusted publishing from GitHub Actions (`.github/workflows/ci.yml`, which calls suwgate's reusable gate
+and release workflows and keeps the publish job): merge the "Version Packages" pull request that CI keeps open, and CI
+publishes with provenance.
 
 The first version is published by hand, once, because npm configures a trusted publisher on a package that exists:
 

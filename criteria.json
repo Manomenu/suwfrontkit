@@ -1,0 +1,3 @@
+{
+    "kinds": [{ "kind": "gate test (vitest)", "paths": ["gate/guards/*.test.ts"], "how": "the id in the title: it(\"<id>: …\")" }]
+}

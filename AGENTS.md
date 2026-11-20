@@ -9,8 +9,8 @@ This repository is a published library: `@maniumek/suwfrontkit` on npmjs.com. It
 ## Commands
 
 - For people: a recipe in `justfile`, in a module of the whole repository beside it (`<name>.just`), or in a tool's folder as `<folder>/mod.just`, with a one-line description; `just` lists them.
-- For agents: a script in `scripts/.internal/`, or in `gate/scripts/` when it checks quality; each answers `--help`. A recipe only calls the script.
-- `check.sh --quick` while working, `check.sh` before calling a change done.
+- For agents: a script in `scripts/.internal/`; each answers `--help`. A recipe only calls the script. A new check goes into suwgate, or, when only this library has it, into `gate/` and `steps.add` of `suwgate.yml`.
+- `pnpm exec suwgate check --quick` while working, `pnpm exec suwgate check` before calling a change done.
 
 ## Git
 
@@ -51,14 +51,14 @@ No comments in project files: agents mostly use comments to excuse bad code and 
     - in a justfile, the one line directly above a recipe or `mod` that `just --list` shows;
     - a shebang `#!` on the first line; `# shellcheck <directive>=…` in shell scripts;
     - `// @ts-expect-error <reason>` and `// @vitest-environment <env>`, only where nothing else works;
-    - a comment that is exactly a criterion id where `criteria.sh` reads it: `// AC-x-n` in `eslint.config.js` and the tsconfigs.
+    - a comment that is exactly a criterion id where the criteria step reads it: `// AC-x-n` in `eslint.config.js` and the tsconfigs.
 - `@ts-ignore`, `@ts-nocheck`, `eslint-disable` and the non-null `!` are banned outright; no comment excuses them.
 - A reason that cannot live in code goes into a test, a story, the README, this file or `docs/` as a sentence.
   A new format that needs a comment to work goes on this list and into its guard in the same change.
 
 ## Specs
 
-A spec's acceptance criteria live as guardrails: `gate/scripts/criteria.sh` and `gate/criteria.json` say what fits, its messages the fix.
+A spec's acceptance criteria live as guardrails: the `criteria` step of `suwgate check` and `criteria.json` say what fits, its messages the fix.
 What it cannot see:
 
 - Set ids with `vdoc.py ids`, never by hand: a dropped id is never reused, an id is never renumbered.
@@ -68,7 +68,7 @@ What it cannot see:
   structure, not by examples: a type derived from the set's source, so a new member is a compile error until it is handled, or a test
   that walks every member, from the source or the rendered structure. A test that names the members it checks lets the next one through.
 - A spec written before its feature is built is a draft in `docs/draft/spec/`, which the gate does not read; it moves to `docs/visual/spec/` when its feature is built, together with the tests that guard its criteria.
-- Before merging a spec'd feature, run `/suwagent:visual-guardrails`: `criteria.sh` sees that an id is named, not that the test would fail.
+- Before merging a spec'd feature, run `/suwagent:visual-guardrails`: the criteria step sees that an id is named, not that the test would fail.
 
 ## Review
 

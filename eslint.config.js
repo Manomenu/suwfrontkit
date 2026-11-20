@@ -1,58 +1,20 @@
-import js from "@eslint/js";
+import { strict } from "@maniumek/suwgate/eslint";
 import { defineConfig } from "eslint/config";
 import boundaries from "eslint-plugin-boundaries";
 import reactHooks from "eslint-plugin-react-hooks";
-import tseslint from "typescript-eslint";
 
-const TOOL_DIRECTIVES = [/^ @ts-expect-error \S/, /^ @vitest-environment [\w-]+$/];
-const CRITERION_MARKER = /^ AC-[a-z0-9]+(-[a-z0-9]+)*-[0-9]+$/;
 const PANEL_PREFERENCE = "src/appShell/panelPreference.ts";
 const BROWSER_STORAGE = ["localStorage", "sessionStorage", "indexedDB"];
 const BROWSER_STORAGE_FIX = `A component keeps its state in React or takes it from the app as a prop; browser storage lives only in ${PANEL_PREFERENCE}, for the remembered navigation panel.`;
 
-export const noComments = {
-    meta: {
-        type: "problem",
-        schema: [],
-        messages: {
-            comment:
-                'Delete the comment; rename or split the code so it explains itself; put lasting knowledge in a test, a story, the README or AGENTS.md (the only comments allowed are the tool directives listed in AGENTS.md, "No comments").',
-        },
-    },
-    create(context) {
-        const readsCriterionMarkers = context.filename.endsWith("eslint.config.js");
-        return {
-            Program() {
-                for (const comment of context.sourceCode.getAllComments()) {
-                    const allowed =
-                        comment.type === "Shebang" ||
-                        TOOL_DIRECTIVES.some((directive) => directive.test(comment.value)) ||
-                        (readsCriterionMarkers && CRITERION_MARKER.test(comment.value));
-                    if (!allowed) {
-                        context.report({ loc: comment.loc, messageId: "comment" });
-                    }
-                }
-            },
-        };
-    },
-};
-
 export default defineConfig(
-    { ignores: ["dist", "storybook-static", "visual/results", "!.storybook"] },
-    js.configs.recommended,
-    tseslint.configs.strictTypeChecked,
-    tseslint.configs.stylisticTypeChecked,
+    strict({
+        root: import.meta.dirname,
+        projects: ["./tsconfig.json", "./tsconfig.node.json"],
+        ignores: ["storybook-static", "visual/results"],
+        untyped: ["prettier.config.js", "gate/consumer/app/**"],
+    }),
     reactHooks.configs.flat["recommended-latest"],
-    {
-        languageOptions: {
-            parserOptions: { project: ["./tsconfig.json", "./tsconfig.node.json"], tsconfigRootDir: import.meta.dirname },
-        },
-        rules: {
-            "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
-            "@typescript-eslint/no-confusing-void-expression": ["error", { ignoreArrowShorthand: true }],
-            "@typescript-eslint/no-unused-vars": ["error", { ignoreRestSiblings: true }],
-        },
-    },
     {
         files: ["src/**/*.{ts,tsx}"],
         ignores: ["src/**/*.stories.tsx", "src/**/*.test.{ts,tsx}"],
@@ -212,14 +174,5 @@ export default defineConfig(
                 ...BROWSER_STORAGE.map((property) => ({ object: "window", property, message: BROWSER_STORAGE_FIX })),
             ],
         },
-    },
-    {
-        files: ["**/*.{ts,tsx,js,mjs,cjs}"],
-        plugins: { local: { rules: { "no-comments": noComments } } },
-        rules: { "local/no-comments": "error" },
-    },
-    {
-        files: ["eslint.config.js", "eslint.config.test.js", "gate/consumer/app/**", "gate/consumer/plain/**"],
-        extends: [tseslint.configs.disableTypeChecked],
     },
 );

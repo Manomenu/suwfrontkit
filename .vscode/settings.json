@@ -6,6 +6,7 @@
     "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
     "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
     "tailwindCSS.classFunctions": ["cn", "cva"],
+    "yaml.schemas": { "./node_modules/@maniumek/suwgate/schema/suwgate.schema.json": "suwgate.yml" },
     "files.exclude": {
         "**/node_modules": true,
         "**/dist": true,
@@ -17,7 +18,7 @@
     "explorer.fileNesting.expand": false,
     "explorer.fileNesting.patterns": {
         "README.md": "AGENTS.md, CLAUDE.md, TODO.md, CHANGELOG.md, LICENSE, justfile, .editorconfig, .gitignore, .gitattributes",
-        "package.json": "pnpm*, .npm*, eslint*, .eslint*, prettier*, .prettier*, knip.json, tsconfig*.json, vite.config.ts, vitest.config.ts",
+        "package.json": "pnpm*, .npm*, eslint*, .eslint*, prettier*, .prettier*, knip.config.ts, suwgate.yml, criteria.json, tsconfig*.json, vite.config.ts, vitest.config.ts",
         "*.ts": "${capture}.js, ${capture}.*.ts",
         "*.tsx": "${capture}.ts, ${capture}.*.ts, ${capture}.*.tsx"
     }
