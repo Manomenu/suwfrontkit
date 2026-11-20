@@ -1,6 +1,6 @@
 import "./index.css";
 
-import { Alert, AppShell, Badge, Button, Field, Input, NavLink, Page, Table } from "@maniumek/suwfrontstyle";
+import { Alert, AppShell, Badge, Button, Field, Input, NavLink, Page, Table } from "@maniumek/suwfrontkit";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
