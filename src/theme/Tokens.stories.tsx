@@ -12,6 +12,7 @@ const pairs = [
     ["secondary", "secondary-foreground"],
     ["muted", "muted-foreground"],
     ["accent", "accent-foreground"],
+    ["destructive", "destructive-foreground"],
     ["destructive-light", "destructive-light-foreground"],
     ["success-light", "success"],
     ["warning-light", "warning"],
