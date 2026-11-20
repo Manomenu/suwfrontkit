@@ -29,7 +29,8 @@ export function NavLink({
             className={cn(
                 "flex h-9 items-center gap-3 rounded-md px-2 text-sm text-foreground outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring/50",
                 collapsed && "w-9",
-                current && "bg-primary-light text-primary-light-foreground",
+                current &&
+                    "relative bg-accent text-accent-foreground before:absolute before:inset-y-1.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary hover:bg-accent",
                 className,
             )}
             {...props}

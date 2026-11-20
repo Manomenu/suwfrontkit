@@ -25,6 +25,8 @@
     --accent-foreground: var(--ctp-text);
     --anchor: color-mix(in srgb, var(--ctp-mauve) 80%, white);
     --destructive: var(--ctp-red);
+    --destructive-hover: color-mix(in srgb, var(--ctp-red) 80%, var(--ctp-crust));
+    --destructive-foreground: var(--ctp-crust);
     --destructive-light: color-mix(in srgb, var(--ctp-red) 12%, var(--ctp-crust));
     --destructive-light-hover: color-mix(in srgb, var(--ctp-red) 18%, var(--ctp-crust));
     --destructive-light-foreground: color-mix(in srgb, var(--ctp-red) 14%, white);
@@ -37,6 +39,7 @@
     --border: var(--ctp-surface2);
     --input: var(--ctp-surface2);
     --ring: var(--ctp-mauve);
+    --backdrop: color-mix(in srgb, var(--ctp-crust) 80%, transparent);
     --content-reading-width: 80ch;
 }
 
@@ -62,6 +65,8 @@
     --color-accent-foreground: var(--accent-foreground);
     --color-anchor: var(--anchor);
     --color-destructive: var(--destructive);
+    --color-destructive-hover: var(--destructive-hover);
+    --color-destructive-foreground: var(--destructive-foreground);
     --color-destructive-light: var(--destructive-light);
     --color-destructive-light-hover: var(--destructive-light-hover);
     --color-destructive-light-foreground: var(--destructive-light-foreground);
@@ -74,6 +79,7 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
+    --color-backdrop: var(--backdrop);
     --radius-sm: 4px;
     --radius-md: var(--radius);
     --radius-lg: var(--radius);

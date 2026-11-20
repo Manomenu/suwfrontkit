@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export const overlayClassName = "fixed inset-0 z-50 bg-background/70";
+export const overlayClassName = "fixed inset-0 z-50 bg-backdrop";
 
 export const contentClassName =
     "fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-3 overflow-y-auto p-5 shadow-lg outline-none";

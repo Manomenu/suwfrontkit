@@ -100,6 +100,10 @@ Reasons that would otherwise sit in comments and that no name or test can carry.
 - That an app without the diagram builds without React Flow is proven on the sources (`entryPoints.test.ts` walks the imports
   of `src/index.ts` and of `theme.css`), not by a second consumer app: `dist/` is tsc's file-by-file emit of the same imports,
   so a bundle of such an app would prove nothing more.
+- The visual tests screenshot a story after its play function: they open it as Storybook's own test-runner does, by emitting
+  `setCurrentStory` on the preview's channel and waiting for `storyFinished` (Storybook 10 emits it after the play function,
+  the animations and `afterEach`). Opening the story by its URL and waiting for it to show raced the play function, so a
+  story's screenshot showed whatever state the play function had reached by then.
 
 ## How code is split
 
