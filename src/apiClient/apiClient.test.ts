@@ -1,6 +1,6 @@
 import { afterEach, expect, expectTypeOf, it, vi } from "vitest";
 
-import { ApiError, createApi, dataOf } from "./apiClient.js";
+import { ApiError, createApi, dataOf, retryUnlessRefused } from "./apiClient.js";
 
 interface Company {
     ticker: string;
@@ -146,4 +146,13 @@ it("takes another base address", async () => {
     await dataOf(api.DELETE("/api/companies/{ticker}", { params: { path: { ticker: "ASML" } } }));
 
     expect(seen).toEqual(["http://127.0.0.1:6330/api/companies/ASML"]);
+});
+
+it("retries a failure that may pass, the server's or the network's, at most twice, and never a refusal", () => {
+    expect(retryUnlessRefused(0, new ApiError(404, { title: "Not Found" }))).toBe(false);
+    expect(retryUnlessRefused(0, new ApiError(422, {}))).toBe(false);
+    expect(retryUnlessRefused(0, new ApiError(503, {}))).toBe(true);
+    expect(retryUnlessRefused(1, new TypeError("Failed to fetch"))).toBe(true);
+    expect(retryUnlessRefused(2, new ApiError(503, {}))).toBe(false);
+    expect(retryUnlessRefused(2, new TypeError("Failed to fetch"))).toBe(false);
 });

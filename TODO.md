@@ -9,5 +9,4 @@ Not built yet, in the order an app is likely to need it. Each arrives with the f
 - Labels of Paginated and InfoTip ("Previous", "Next", "About …") as props, when an app is not in English.
 - Icons (lucide), toasts, tabs; a published Storybook.
 - A light theme, only if an app asks for one: a new layer over the same semantic token names.
-- TanStack Query defaults (a `QueryClient` that does not retry a 4xx `ApiError`), once a second app moves its server state to TanStack Query; suwagcms holds the first copy.
 - Delete `scripts/.internal/visual-update.sh` once suwgate can record the screenshots of its `visual` step itself.
