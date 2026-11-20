@@ -5,7 +5,15 @@ import { expect, userEvent, within } from "storybook/test";
 import { Button } from "../button/Button.js";
 import { ConfirmDialog } from "./ConfirmDialog.js";
 
-function DeleteCompany({ startOpen, variant, slow }: { startOpen: boolean; variant: "default" | "destructive"; slow: boolean }) {
+function DeleteCompany({
+    startOpen,
+    variant,
+    deletion,
+}: {
+    startOpen: boolean;
+    variant: "default" | "destructive";
+    deletion: "finishes" | "never finishes";
+}) {
     const [open, setOpen] = useState(startOpen);
     const [deleted, setDeleted] = useState(false);
     return (
@@ -30,15 +38,11 @@ function DeleteCompany({ startOpen, variant, slow }: { startOpen: boolean; varia
                 cancelLabel="Keep it"
                 pendingLabel="Deleting…"
                 onConfirm={() =>
-                    new Promise<void>((resolve) => {
-                        setTimeout(
-                            () => {
-                                setDeleted(true);
-                                resolve();
-                            },
-                            slow ? 60_000 : 50,
-                        );
-                    })
+                    deletion === "finishes"
+                        ? Promise.resolve().then(() => {
+                              setDeleted(true);
+                          })
+                        : new Promise<void>(() => undefined)
                 }
             />
         </div>
@@ -48,7 +52,7 @@ function DeleteCompany({ startOpen, variant, slow }: { startOpen: boolean; varia
 const meta = {
     component: DeleteCompany,
     title: "ConfirmDialog",
-    args: { startOpen: true, variant: "destructive", slow: false },
+    args: { startOpen: true, variant: "destructive", deletion: "finishes" },
 } satisfies Meta<typeof DeleteCompany>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -58,7 +62,7 @@ export const Destructive: Story = {};
 export const Default: Story = { args: { variant: "default" } };
 
 export const Pending: Story = {
-    args: { slow: true },
+    args: { deletion: "never finishes" },
     play: async () => {
         const dialog = await within(document.body).findByRole("alertdialog");
         await userEvent.click(within(dialog).getByRole("button", { name: "Delete company" }));
