@@ -10,17 +10,15 @@ permissions: {}
 env:
   NODE_VERSION: 24.22.1
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
   gate:
     permissions:
       contents: read
-    uses: Manomenu/suwgate/.github/workflows/gate.yml@5f036425ad6f5ef0dfad55d88e88b320870d0fb8
+      statuses: write
+      pull-requests: read
+    uses: Manomenu/suwgate/.github/workflows/gate.yml@e05e6a8a0387033d0a009db1e4b69b2471568df0
     with:
-      browser-install-command: pnpm exec playwright install --with-deps chromium
+      browser: chromium
 
   release:
     if: github.event_name == 'push'
@@ -28,7 +26,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: Manomenu/suwgate/.github/workflows/release-npm.yml@5f036425ad6f5ef0dfad55d88e88b320870d0fb8
+    uses: Manomenu/suwgate/.github/workflows/release-npm.yml@e05e6a8a0387033d0a009db1e4b69b2471568df0
 
   publish:
     if: needs.release.outputs.mode == 'publish'
