@@ -3,6 +3,8 @@ export { Anchor } from "./anchor/Anchor.js";
 export { ApiError, createApi, dataOf, refusalReader, retryUnlessRefused, type Mistake, type RefusalReader } from "./apiClient/apiClient.js";
 export { AppShell } from "./appShell/AppShell.js";
 export { NavLink } from "./appShell/NavLink.js";
+export { NavTree } from "./appShell/NavTree.js";
+export type { NavItem1, NavItem2, NavItem3 } from "./appShell/navTree.js";
 export { Badge } from "./badge/Badge.js";
 export { Button } from "./button/Button.js";
 export { CopyButton } from "./button/CopyButton.js";

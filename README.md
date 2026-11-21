@@ -3,7 +3,7 @@
 `@maniumek/suwfrontkit`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
-Legend, InfoTip, Tooltip, Table, Paper, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
+Legend, InfoTip, Tooltip, Table, Paper, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink and NavTree, GraphicSplit, History,
 Diff with DiffLines, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, Spinner, ResourceList, ResourceEdit, ToggleChip,
 MultiSelect, SegmentedControl, CopyButton, MistakeList, PreviousNext, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
 leave guard for unsaved changes with GuardedLink and LinkProvider, a reader of server-sent events, and, each under its own entry point,
@@ -95,6 +95,13 @@ export function Companies() {
 - Every `NavLink` needs an `icon` and a `label`. The expanded panel shows both; the collapsed panel is a strip of the icons,
   each named by its label and showing it in a tooltip, with `aria-current` in both states. With `asChild` the router's link
   is the child, empty: NavLink puts the icon and the label into it.
+- Nested navigation is a `NavTree` of at most three levels (`items: NavItem1[]`, each with `icon`, `label`, `href`, `current`,
+  optional `title` and `items`; a fourth level does not compile), such as Bots, a bot, its tabs. Expanded, each level is
+  indented by about 12 px behind a guide line from under its parent's icon, with 16 px icons below the first level, in the
+  panel's unchanged width (a long label truncates and shows in full on hover). The active item has the highlight and
+  `aria-current="page"`; each of its ancestors gets a lighter mark. Collapsed, the strip shows every first-level icon and, under
+  the one holding the active page, only the active path (its second- and third-level icons) in one tinted rail. Its links are
+  `href`s that move with the app's router under a `LinkProvider`. The app never indents by hand.
 - The library ships no icons: pass any React element, an inline `<svg>`, an `<img>` or an icon set such as
   [lucide-react](https://lucide.dev/guide/packages/lucide-react). The shell sizes them (28 px in the header, 20 px in the panel).
 - `AppShell` remembers the collapsed panel under `storageKey` in `localStorage`; it starts expanded. It knows no router:

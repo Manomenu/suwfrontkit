@@ -6,6 +6,8 @@ import { Page } from "../page/Page.js";
 import { Table } from "../table/Table.js";
 import { AppShell } from "./AppShell.js";
 import { NavLink } from "./NavLink.js";
+import type { NavItem1 } from "./navTree.js";
+import { NavTree } from "./NavTree.js";
 
 const STORAGE_KEY = "storybook.navigation-panel";
 
@@ -140,3 +142,98 @@ export const CollapsedShowsTheNameOnFocus: Story = {
 };
 
 export const PanelOnTheRight: Story = { args: { side: "right" } };
+
+const BOT = "M12 8V4H8M4 8h16v12H4zM2 14h2M20 14h2M9 13v2M15 13v2";
+const TAB = "M4 7h16M4 12h10M4 17h7";
+
+function botTree(active: "bot" | "tab"): NavItem1[] {
+    return [
+        {
+            icon: <Icon d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z" />,
+            label: "Bots",
+            href: "#bots",
+            current: false,
+            items: [
+                {
+                    icon: <Icon d={BOT} />,
+                    label: "shop-assistant",
+                    href: "#bots/shop",
+                    current: active === "bot",
+                    items: [
+                        { icon: <Icon d={TAB} />, label: "Facts", href: "#bots/shop/facts", current: false },
+                        { icon: <Icon d={TAB} />, label: "Procedures", href: "#bots/shop/procedures", current: active === "tab" },
+                        {
+                            icon: <Icon d={TAB} />,
+                            label: "Knowledge bases shared with the claims department",
+                            href: "#bots/shop/kb",
+                            current: false,
+                        },
+                    ],
+                },
+                { icon: <Icon d={BOT} />, label: "bank-helpdesk", href: "#bots/bank", current: false },
+            ],
+        },
+        { icon: <Icon d={items[1]?.d ?? TAB} />, label: "Theses", href: "#theses", current: false },
+    ];
+}
+
+async function expectOnlyTheActivePath(canvasElement: HTMLElement, shown: string[]) {
+    const navigation = within(canvasElement).getByRole("navigation", { name: "Main" });
+    await expect(
+        within(navigation)
+            .getAllByRole("link")
+            .map((link) => link.getAttribute("aria-label")),
+    ).toEqual(shown);
+}
+
+const nested = (active: "bot" | "tab") => ({
+    panel: (
+        <nav aria-label="Main" className="flex flex-col gap-0.5">
+            <NavTree items={botTree(active)} />
+        </nav>
+    ),
+    children: <Page title="Procedures" />,
+});
+
+const collapsed = () => {
+    window.localStorage.setItem(STORAGE_KEY, "collapsed");
+};
+
+export const NestedExpanded: Story = {
+    name: "Nested, expanded",
+    args: nested("tab"),
+    play: async ({ canvasElement }) => {
+        const navigation = within(within(canvasElement).getByRole("navigation", { name: "Main" }));
+        await expect(navigation.getByRole("link", { name: "Procedures" })).toHaveAttribute("aria-current", "page");
+        const bot = navigation.getByRole("link", { name: "shop-assistant" }).getBoundingClientRect();
+        const tab = navigation.getByRole("link", { name: "Procedures" }).getBoundingClientRect();
+        const bots = navigation.getByRole("link", { name: "Bots" }).getBoundingClientRect();
+        await expect(bot.left - bots.left).toBeCloseTo(13, 0);
+        await expect(tab.left - bot.left).toBeCloseTo(13, 0);
+        await expect(tab.right).toBe(bots.right);
+        const long = navigation.getByText("Knowledge bases shared with the claims department");
+        await expect(long.scrollWidth).toBeGreaterThan(long.clientWidth);
+        await expect(long).toHaveAttribute("title", "Knowledge bases shared with the claims department");
+    },
+};
+
+export const NestedActiveAtLevelTwo: Story = { name: "Nested, active at level two", args: nested("bot") };
+
+export const NestedCollapsed: Story = {
+    name: "Nested, collapsed",
+    args: nested("tab"),
+    beforeEach: collapsed,
+    play: async ({ canvasElement }) => {
+        await expectOnlyTheActivePath(canvasElement, ["Bots", "shop-assistant", "Procedures", "Theses"]);
+        await expectIconsAlignedWithTheToggle(canvasElement);
+    },
+};
+
+export const NestedCollapsedActiveAtLevelTwo: Story = {
+    name: "Nested, collapsed, active at level two",
+    args: nested("bot"),
+    beforeEach: collapsed,
+    play: async ({ canvasElement }) => {
+        await expectOnlyTheActivePath(canvasElement, ["Bots", "shop-assistant", "Theses"]);
+    },
+};

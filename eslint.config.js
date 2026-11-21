@@ -80,6 +80,10 @@ export default defineConfig(
                             allow: { to: { element: { type: "component", captured: { name: "previousNext" } } } },
                         },
                         {
+                            from: { element: { type: "component", captured: { name: "appShell" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "leaveGuard" } } } },
+                        },
+                        {
                             from: { element: { type: "component", captured: { name: "previousNext" } } },
                             allow: { to: { element: { type: "component", captured: { name: "button" } } } },
                         },
