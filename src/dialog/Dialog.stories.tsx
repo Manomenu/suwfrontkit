@@ -64,3 +64,29 @@ type Story = StoryObj<typeof meta>;
 export const Open: Story = {};
 
 export const Wide: Story = { args: { width: "wide" } };
+
+function Source() {
+    const [open, setOpen] = useState(true);
+    return (
+        <>
+            <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                    setOpen(true);
+                }}
+            >
+                Open the source
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen} title="Fees for a house valuation" closable width="wide">
+                {Array.from({ length: 40 }, (_, line) => (
+                    <p key={line} className="text-sm">
+                        Paragraph {line + 1}: a valuation of a house costs 1100 zł and takes two weeks from the visit.
+                    </p>
+                ))}
+            </Dialog>
+        </>
+    );
+}
+
+export const ClosableWithALongBody: StoryObj<typeof Source> = { render: () => <Source /> };

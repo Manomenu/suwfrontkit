@@ -3,6 +3,7 @@ import { AlertDialog } from "radix-ui";
 
 import { Button } from "../button/Button.js";
 import { Paper } from "../paper/Paper.js";
+import { DialogBody } from "./DialogBody.js";
 import {
     actionsClassName,
     contentClassName,
@@ -81,7 +82,7 @@ export function ConfirmDialog({
                         {description !== undefined && (
                             <AlertDialog.Description className={descriptionClassName}>{description}</AlertDialog.Description>
                         )}
-                        {children}
+                        {children !== undefined && <DialogBody>{children}</DialogBody>}
                         <div className={actionsClassName}>
                             <AlertDialog.Cancel asChild>
                                 <Button type="button" variant="outline" disabled={pending}>

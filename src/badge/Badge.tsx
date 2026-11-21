@@ -16,6 +16,22 @@ const badgeVariants = cva("inline-flex items-center rounded-full px-2 py-0.5 tex
     defaultVariants: { variant: "neutral" },
 });
 
-export function Badge({ className, variant, ...props }: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants>) {
-    return <span data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />;
+export function Badge({
+    className,
+    variant,
+    dot = false,
+    children,
+    ...props
+}: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { dot?: boolean | "pulsing" }) {
+    return (
+        <span data-slot="badge" className={cn(badgeVariants({ variant }), dot !== false && "gap-1.5", className)} {...props}>
+            {dot !== false && (
+                <span
+                    aria-hidden="true"
+                    className={cn("size-1.5 shrink-0 rounded-full bg-current", dot === "pulsing" && "motion-safe:animate-pulse")}
+                />
+            )}
+            {children}
+        </span>
+    );
 }

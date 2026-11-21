@@ -61,15 +61,15 @@ export class ApiError extends Error {
     }
 }
 
-export interface RefusalReader<Code extends string> {
+export interface RefusalReader<Code extends string, MistakeCode extends string = Code> {
     codeOf: (error: unknown) => Code | null;
-    mistakesOf: (error: unknown) => readonly Mistake<Code>[];
+    mistakesOf: (error: unknown) => readonly Mistake<MistakeCode>[];
 }
 
-export function refusalReader<Code extends string = string>(): RefusalReader<Code> {
+export function refusalReader<Code extends string = string, MistakeCode extends string = Code>(): RefusalReader<Code, MistakeCode> {
     return {
         codeOf: (error) => (error instanceof ApiError ? (error.code as Code | null) : null),
-        mistakesOf: (error) => (error instanceof ApiError ? (error.mistakes as readonly Mistake<Code>[]) : []),
+        mistakesOf: (error) => (error instanceof ApiError ? (error.mistakes as readonly Mistake<MistakeCode>[]) : []),
     };
 }
 

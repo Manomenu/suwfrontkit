@@ -4,14 +4,15 @@ const SIZES = { xs: "size-[18px] border-2", sm: "size-[22px] border-2", md: "siz
 
 export function Spinner({ label, size = "md", className }: { label: string; size?: keyof typeof SIZES; className?: string }) {
     return (
-        <span
-            role="status"
-            aria-label={label}
-            className={cn(
-                "inline-block shrink-0 rounded-full border-primary border-r-transparent motion-safe:animate-spin",
-                SIZES[size],
-                className,
-            )}
-        />
+        <span role="status" aria-label={label} className={cn("inline-flex items-center gap-2 text-muted-foreground", className)}>
+            <span
+                aria-hidden="true"
+                className={cn(
+                    "inline-block shrink-0 rounded-full border-primary border-r-transparent motion-safe:animate-spin",
+                    SIZES[size],
+                )}
+            />
+            {label}
+        </span>
     );
 }

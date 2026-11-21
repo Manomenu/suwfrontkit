@@ -3,6 +3,7 @@ import { useRef, type ReactNode } from "react";
 import { Alert } from "../alert/Alert.js";
 import { Button } from "../button/Button.js";
 import { cn } from "../classNames.js";
+import { Spinner } from "../spinner/Spinner.js";
 
 export interface Paging {
     page: number;
@@ -33,7 +34,7 @@ export function Paginated({ paging, labels, children }: { paging: Paging; labels
     const top = useRef<HTMLDivElement>(null);
     const said = { ...ENGLISH_PAGING, ...labels };
     if (paging.failure !== null) return <Alert variant="destructive">{paging.failure}</Alert>;
-    if (paging.asking) return <p className="text-muted-foreground">{said.loading}</p>;
+    if (paging.asking) return <Spinner size="sm" label={said.loading} />;
     const { page, pages, hasNext, onMove } = paging;
     const move = (to: number) => {
         top.current?.scrollIntoView({ block: "start" });

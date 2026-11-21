@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { expect, it, vi } from "vitest";
 
 import { InfoTip } from "./InfoTip.js";
 
@@ -10,4 +10,26 @@ it("is a button named after what it explains and described by its help", () => {
     expect(document.getElementById(button.getAttribute("aria-describedby") ?? "")?.textContent).toBe(
         "How far below the fair value the price is.",
     );
+});
+
+it("takes help with markup, such as a list, and tells the app when it opens", () => {
+    const onOpenChange = vi.fn();
+    render(
+        <InfoTip
+            about="Employer name"
+            onOpenChange={onOpenChange}
+            help={
+                <ul>
+                    <li>Procedure Intake (draft)</li>
+                </ul>
+            }
+        />,
+    );
+
+    const button = screen.getByRole("button", { name: "About Employer name" });
+    expect(document.getElementById(button.getAttribute("aria-describedby") ?? "")?.querySelector("li")?.textContent).toBe(
+        "Procedure Intake (draft)",
+    );
+    fireEvent.click(button);
+    expect(onOpenChange).toHaveBeenCalledWith(true);
 });

@@ -1,10 +1,12 @@
-import type { ReactElement, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { Alert } from "../alert/Alert.js";
 import { Button } from "../button/Button.js";
+import { GuardedLink } from "../leaveGuard/GuardedLink.js";
 import { Page } from "../page/Page.js";
 import { Paginated, type Paging } from "../paginated/Paginated.js";
 import { Paper } from "../paper/Paper.js";
+import { Spinner } from "../spinner/Spinner.js";
 import { Table } from "../table/Table.js";
 
 export interface ResourceColumn<Row> {
@@ -18,9 +20,9 @@ export function ResourceList<Row>({
     columns,
     rows,
     idOf,
-    link,
+    hrefOf,
     openLabel = "Edit",
-    add,
+    addHref,
     addLabel = "Add",
     addDisabled = false,
     failure = null,
@@ -34,9 +36,9 @@ export function ResourceList<Row>({
     columns: ResourceColumn<Row>[];
     rows: Row[] | null;
     idOf: (row: Row) => string;
-    link: (row: Row, label: string) => ReactElement;
+    hrefOf: (row: Row) => string;
     openLabel?: string;
-    add?: (label: string) => ReactElement;
+    addHref?: string;
     addLabel?: string;
     addDisabled?: boolean;
     failure?: string | null;
@@ -69,7 +71,7 @@ export function ResourceList<Row>({
                             ))}
                             <td className="text-right">
                                 <Button asChild variant="outline" size="sm">
-                                    {link(row, openLabel)}
+                                    <GuardedLink href={hrefOf(row)}>{openLabel}</GuardedLink>
                                 </Button>
                             </td>
                         </tr>
@@ -80,14 +82,18 @@ export function ResourceList<Row>({
     );
     const body = () => {
         if (failure !== null) return <Alert variant="destructive">{failure}</Alert>;
-        if (rows === null) return <p className="text-muted-foreground">{loadingLabel}</p>;
+        if (rows === null) return <Spinner size="sm" label={loadingLabel} />;
         const shown = rows.length === 0 ? <div className="text-muted-foreground">{empty}</div> : table(rows);
         return paging === undefined ? shown : <Paginated paging={paging}>{shown}</Paginated>;
     };
     const addAction = () => {
-        if (add === undefined) return undefined;
+        if (addHref === undefined) return undefined;
         if (addDisabled) return <Button disabled>{addLabel}</Button>;
-        return <Button asChild>{add(addLabel)}</Button>;
+        return (
+            <Button asChild>
+                <GuardedLink href={addHref}>{addLabel}</GuardedLink>
+            </Button>
+        );
     };
     return (
         <Page title={title} actions={addAction()}>

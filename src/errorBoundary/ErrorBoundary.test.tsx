@@ -101,3 +101,22 @@ it("the screen takes its labels from the app and shows no empty message for a th
 
     expect(screen.getByRole("alert").textContent).toBe("Ekran nie działaSpróbuj ponownie");
 });
+
+it("the screen shows the app's own ways out in place of the retry", () => {
+    render(
+        <ErrorScreen
+            error={new Error("steps is not iterable")}
+            title="This screen failed to open."
+            actions={
+                <>
+                    <a href="/report">Reload</a>
+                    <a href="/">Back to the list</a>
+                </>
+            }
+        />,
+    );
+
+    expect(screen.getByRole("alert").textContent).toBe("This screen failed to open.steps is not iterableReloadBack to the list");
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.getByRole("link", { name: "Back to the list" }).getAttribute("href")).toBe("/");
+});

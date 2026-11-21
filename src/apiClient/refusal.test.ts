@@ -122,4 +122,13 @@ describe("reading a refusal", () => {
         expectTypeOf(mistakes[0]?.code).toEqualTypeOf<RefusalCode | undefined>();
         expect(code === "procedure.invalid" ? "fix the steps" : "try again").toBe("fix the steps");
     });
+
+    it("AC-refusal-reading-4: an app whose mistakes have codes of their own reads them as a second enum, without a cast", () => {
+        type MistakeCode = "step.missing" | "step.name.invalid";
+        const error: unknown = new ApiError(422, refusal);
+
+        const mistakes = refusalReader<RefusalCode, MistakeCode>().mistakesOf(error);
+
+        expectTypeOf(mistakes[0]?.code).toEqualTypeOf<MistakeCode | undefined>();
+    });
 });

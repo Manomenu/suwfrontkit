@@ -76,10 +76,6 @@ export default defineConfig(
                             allow: { to: { element: { type: "component", captured: { name: "button" } } } },
                         },
                         {
-                            from: { element: { type: "component", captured: { name: "statusBadge" } } },
-                            allow: { to: { element: { type: "component", captured: { name: "badge" } } } },
-                        },
-                        {
                             from: { element: { type: "component", captured: { name: "paginated" } } },
                             allow: { to: { element: { type: "component", captured: { name: "button" } } } },
                         },
@@ -141,15 +137,39 @@ export default defineConfig(
                         },
                         {
                             from: { element: { type: "component", captured: { name: "toggleChip" } } },
-                            allow: { to: { element: { type: "component", captured: { name: "button" } } } },
+                            allow: { to: { element: { type: "component", captured: { name: "tooltip" } } } },
                         },
                         {
-                            from: { element: { type: "component", captured: { name: "toggleChip" } } },
-                            allow: { to: { element: { type: "component", captured: { name: "badge" } } } },
+                            from: { element: { type: "component", captured: { name: "anchor" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "leaveGuard" } } } },
                         },
                         {
-                            from: { element: { type: "component", captured: { name: "toggleChip" } } },
-                            allow: { to: { element: { type: "component", captured: { name: "label" } } } },
+                            from: { element: { type: "component", captured: { name: "paginated" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "spinner" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceList" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "leaveGuard" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceList" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "spinner" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceEdit" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "spinner" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceEdit" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "mistakeList" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "resourceEdit" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "apiClient" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "mistakeList" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "apiClient" } } } },
                         },
                         {
                             from: { element: { type: "component", captured: { name: "multiSelect" } } },

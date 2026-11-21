@@ -39,7 +39,7 @@ it("shows the failure instead of the rows, and a loading line while asking", () 
     expect(screen.getByRole("alert").textContent).toBe("Could not load.");
 
     rerender(<Paginated paging={{ ...paging, asking: true }}>rows</Paginated>);
-    expect(screen.getByText("Loading…")).toBeDefined();
+    expect(screen.getByRole("status", { name: "Loading…" })).toBeDefined();
 });
 
 it("speaks the app's language when it passes labels", () => {

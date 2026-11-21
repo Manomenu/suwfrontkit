@@ -1,12 +1,15 @@
-import { useRef, useState, type SubmitEvent, type ReactElement, type ReactNode } from "react";
+import { useRef, useState, type SubmitEvent, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 
 import { Alert } from "../alert/Alert.js";
+import type { Mistake } from "../apiClient/apiClient.js";
 import { Anchor } from "../anchor/Anchor.js";
 import { Button } from "../button/Button.js";
 import { ConfirmDialog } from "../dialog/ConfirmDialog.js";
+import { MistakeList } from "../mistakeList/MistakeList.js";
 import { Page } from "../page/Page.js";
 import { Paper } from "../paper/Paper.js";
+import { Spinner } from "../spinner/Spinner.js";
 import { StickyActions } from "../stickyActions/StickyActions.js";
 
 export interface Deletion {
@@ -65,18 +68,12 @@ function DeleteAction({ deletion, title }: { deletion: Deletion; title: string }
     );
 }
 
-function Refusal({ refusal, mistakes }: { refusal: string | null; mistakes: string[] }) {
+function Refusal({ refusal, mistakes }: { refusal: string | null; mistakes: readonly Mistake[] }) {
     if (refusal === null && mistakes.length === 0) return null;
     return (
         <Alert variant="destructive" className="flex flex-col gap-1">
             {refusal !== null && <span>{refusal}</span>}
-            {mistakes.length > 0 && (
-                <ul className="list-disc pl-4">
-                    {mistakes.map((mistake) => (
-                        <li key={mistake}>{mistake}</li>
-                    ))}
-                </ul>
-            )}
+            <MistakeList mistakes={mistakes} />
         </Alert>
     );
 }
@@ -120,7 +117,7 @@ function SaveButton({ saving, label, pendingLabel }: { saving: boolean; label: s
 
 export function ResourceEdit({
     title,
-    back,
+    backHref,
     backLabel = "Back to the list",
     titleAside,
     actions,
@@ -144,7 +141,7 @@ export function ResourceEdit({
     children,
 }: {
     title: string;
-    back?: (label: string) => ReactElement;
+    backHref?: string;
     backLabel?: string;
     titleAside?: ReactNode;
     actions?: ReactNode;
@@ -160,23 +157,23 @@ export function ResourceEdit({
     cancelLabel?: string;
     footerActions?: ReactNode;
     refusal?: string | null;
-    mistakes?: string[];
+    mistakes?: readonly Mistake[];
     deletion?: Deletion;
     children: ReactNode;
 } & Submission) {
     const submission = useSubmission(action, onSubmit);
     const way =
-        back === undefined ? null : (
+        backHref === undefined ? null : (
             <div className="flex items-center gap-1 text-sm">
                 <span aria-hidden="true" className="text-anchor">
                     ←
                 </span>
-                <Anchor asChild>{back(backLabel)}</Anchor>
+                <Anchor href={backHref}>{backLabel}</Anchor>
             </div>
         );
     const screen = () => {
         if (failure !== null) return <Alert variant="destructive">{failure}</Alert>;
-        if (!ready) return <p className="text-muted-foreground">{loadingLabel}</p>;
+        if (!ready) return <Spinner size="sm" label={loadingLabel} />;
         return (
             <Page title={title} titleAside={titleAside} actions={actions} width={width}>
                 {above}

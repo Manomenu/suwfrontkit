@@ -9,7 +9,7 @@ import { GraphicSplit } from "../graphicSplit/GraphicSplit.js";
 import { Input } from "../input/Input.js";
 import { Label } from "../label/Label.js";
 import { Page } from "../page/Page.js";
-import { Panel } from "../paper/Paper.js";
+import { Paper } from "../paper/Paper.js";
 import { FlowDiagram, type DiagramNode } from "./FlowDiagram.js";
 import type { DiagramEdge } from "./lines.js";
 
@@ -95,10 +95,10 @@ export const NextToItsForm: Story = {
     render: (args) => (
         <GraphicSplit graphic={<FlowDiagram {...args} selectedId="letter" onNodeClick={() => undefined} />}>
             <Page title="Debt collection procedure">
-                <Panel title="Compose the demand letter">
+                <Paper title="Compose the demand letter">
                     <Label htmlFor="template">Template</Label>
                     <Input id="template" defaultValue="Demand for payment, v3" />
-                </Panel>
+                </Paper>
             </Page>
         </GraphicSplit>
     ),

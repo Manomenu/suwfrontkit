@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Page } from "../page/Page.js";
-import { Panel, Paper } from "../paper/Paper.js";
+import { Paper } from "../paper/Paper.js";
 import { GraphicSplit } from "./GraphicSplit.js";
 
 const meta = { component: GraphicSplit } satisfies Meta<typeof GraphicSplit>;
@@ -10,12 +10,12 @@ type Story = StoryObj<typeof meta>;
 
 const data = (
     <Page title="Debt collection procedure">
-        <Panel title="Steps">
+        <Paper title="Steps">
             <p>Collect documents, check arrears, compose the demand letter, send it.</p>
-        </Panel>
-        <Panel title="History">
+        </Paper>
+        <Paper title="History">
             <p>Anna edited the procedure yesterday.</p>
-        </Panel>
+        </Paper>
     </Page>
 );
 

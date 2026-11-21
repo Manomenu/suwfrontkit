@@ -7,28 +7,30 @@ import { Input } from "../input/Input.js";
 import { Label } from "../label/Label.js";
 import { GuardedLink } from "./GuardedLink.js";
 import { useLeaveGuard } from "./leaveGuard.js";
+import { LinkProvider } from "./LinkProvider.js";
 
 function EditCompany() {
     const [name, setName] = useState("ASML Holding");
     const [at, setAt] = useState("/companies/ASML");
     useLeaveGuard(name !== "ASML Holding");
     return (
-        <div className="flex max-w-reading flex-col gap-3">
-            <Anchor asChild className="self-start">
-                <GuardedLink href="/companies" navigate={setAt}>
+        <LinkProvider navigate={setAt}>
+            <div className="flex max-w-reading flex-col gap-3">
+                <Anchor href="/companies" className="self-start">
                     ← Back to the companies
-                </GuardedLink>
-            </Anchor>
-            <Label htmlFor="company-name">Name</Label>
-            <Input
-                id="company-name"
-                value={name}
-                onChange={(event) => {
-                    setName(event.target.value);
-                }}
-            />
-            <p className="text-muted-foreground">Now at {at}</p>
-        </div>
+                </Anchor>
+                <Label htmlFor="company-name">Name</Label>
+                <Input
+                    id="company-name"
+                    value={name}
+                    onChange={(event) => {
+                        setName(event.target.value);
+                    }}
+                />
+                <GuardedLink href="/companies/new">Add a company</GuardedLink>
+                <p className="text-muted-foreground">Now at {at}</p>
+            </div>
+        </LinkProvider>
     );
 }
 
