@@ -1,7 +1,24 @@
 import { useId, useState, type ReactNode } from "react";
 import { Tooltip } from "radix-ui";
 
-export function InfoTip({ about, help, onOpenChange }: { about: string; help: ReactNode; onOpenChange?: (open: boolean) => void }) {
+const INFO_ICON = (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.75" />
+        <path d="M8 7.25v4M8 4.5v.5" strokeLinecap="round" />
+    </svg>
+);
+
+export function InfoTip({
+    about,
+    help,
+    icon = INFO_ICON,
+    onOpenChange,
+}: {
+    about: string;
+    help: ReactNode;
+    icon?: ReactNode;
+    onOpenChange?: (open: boolean) => void;
+}) {
     const [open, setOpenState] = useState(false);
     const descriptionId = useId();
     const setOpen = (next: boolean) => {
@@ -19,20 +36,10 @@ export function InfoTip({ about, help, onOpenChange }: { about: string; help: Re
                             event.preventDefault();
                             setOpen(true);
                         }}
-                        className="inline-flex size-5 shrink-0 cursor-help items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+                        className="inline-flex size-5 shrink-0 cursor-help items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 [&_svg:not([class*='size-'])]:size-3.5"
                     >
                         <span className="sr-only">About {about}</span>
-                        <svg
-                            viewBox="0 0 16 16"
-                            className="size-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            aria-hidden="true"
-                        >
-                            <circle cx="8" cy="8" r="6.75" />
-                            <path d="M8 7.25v4M8 4.5v.5" strokeLinecap="round" />
-                        </svg>
+                        {icon}
                     </button>
                 </Tooltip.Trigger>
                 <Tooltip.Portal>

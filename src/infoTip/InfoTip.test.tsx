@@ -33,3 +33,11 @@ it("takes help with markup, such as a list, and tells the app when it opens", ()
     fireEvent.click(button);
     expect(onOpenChange).toHaveBeenCalledWith(true);
 });
+
+it("shows the icon it is given in place of the i, such as one that tells two tips apart", () => {
+    render(<InfoTip about="Margin" help="How far below the fair value the price is." icon={<svg data-testid="usage-icon" />} />);
+
+    const button = screen.getByRole("button", { name: "About Margin" });
+    expect(button.querySelectorAll("svg")).toHaveLength(1);
+    expect(button.querySelector("svg")?.getAttribute("data-testid")).toBe("usage-icon");
+});
