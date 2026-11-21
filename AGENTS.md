@@ -19,7 +19,7 @@ This repository is a published library: `@maniumek/suwfrontkit` on npmjs.com. It
 
 - **The main branch is `master`**, never `main`.
 - Work on a feature branch, never on `master`. Agents do not rewrite or discard history: no
-  amend, reset, rebase, stash, force-push or deleting an unmerged branch. Merging and releasing are the owner's.
+  amend, reset, rebase, stash, force-push or deleting an unmerged branch. An agent may merge a pull request whose CI is green, and release.
 - **A branch merged into `master` is deleted** right after the merge: local, remote and its worktree, with
   `git branch -d`, which refuses unmerged work. Needed again? Start a new one from `master`.
 - A change with a red gate is not committed: it stays in the working tree and the summary says why.
@@ -31,8 +31,8 @@ This repository is a published library: `@maniumek/suwfrontkit` on npmjs.com. It
 
 - Every change of `src/` carries a changeset (`just changeset`): patch for a fix, minor for something new, and while the
   version is 0.x also minor for a breaking change, with what an app must change written in the changeset.
-- Agents never publish, log in to npm or push. CI publishes with npm trusted publishing after the owner merges the
-  "Version Packages" pull request.
+- Only CI publishes: nobody logs in to npm. CI publishes with npm trusted publishing after the "Version Packages" pull
+  request is merged, which an agent may do once its CI is green.
 
 ## Rules
 
