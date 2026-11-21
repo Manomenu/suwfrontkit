@@ -170,8 +170,9 @@ export function Companies() {
 - `SegmentedControl` picks one of a few options, all visible (a radio group: `label`, `options`, `value`, `onValueChange`);
   clicking the checked option keeps it.
 - `PreviousNext` is the Previous / counter / Next bar of `Paginated`, for any walk through a list (pages, current steps): a
-  group named by its `label`, the `counter` text in a slot of a fixed width with figures of one width, so a longer or shorter
-  counter never moves the buttons; `previousDisabled`, `nextDisabled`, an optional `reason` shown beside disabled buttons and
+  group named by its `label`, the `counter` text with figures of one width in a cell as wide as `widestCounter`, the widest
+  text the caller can show (`Paginated` passes its last page), so a shorter counter never moves the buttons and leaves no
+  gap; without `widestCounter` the cell is the counter's own width. `previousDisabled`, `nextDisabled`, an optional `reason` shown beside disabled buttons and
   read as their description, `size` `sm` (default) or `xs`, and English labels the app can replace.
 - `CopyButton` copies its `value` to the clipboard and reads `Copied` until the value changes; it takes the props of `Button`.
 - Choosing several values: `MultiSelect` searches a list and keeps a chosen value that is no longer offered; it takes

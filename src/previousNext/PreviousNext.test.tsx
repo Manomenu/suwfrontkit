@@ -16,13 +16,29 @@ it("is a group named by its label, with the counter between Previous and Next", 
     expect(onPrevious).toHaveBeenCalledOnce();
 });
 
-it("keeps the counter in a slot of its own width, with figures of one width, so a longer text does not move the buttons", () => {
+it("reserves the counter's cell for the widest text it can show, hidden from sight and from screen readers, in figures of one width", () => {
+    render(<PreviousNext label="Current steps" counter="1/12" widestCounter="12/12" onPrevious={vi.fn()} onNext={vi.fn()} />);
+
+    const counter = screen.getByText("1/12");
+    const widest = screen.getByText("12/12");
+    const cell = counter.parentElement;
+    expect(widest.parentElement).toBe(cell);
+    expect(cell?.className).toContain("inline-grid");
+    expect(cell?.className).toContain("tabular-nums");
+    expect(cell?.className).toContain("whitespace-nowrap");
+    expect(counter.className).toContain("[grid-area:1/1]");
+    expect(widest.className).toContain("[grid-area:1/1]");
+    expect(widest.className).toContain("invisible");
+    expect(widest.getAttribute("aria-hidden")).toBe("true");
+    expect(counter.getAttribute("aria-live")).toBe("polite");
+    expect(widest.hasAttribute("aria-live")).toBe(false);
+});
+
+it("without a widest text the counter takes its own width", () => {
     render(<PreviousNext label="Pages" counter="Page 1 of 9" onPrevious={vi.fn()} onNext={vi.fn()} />);
 
-    const counter = screen.getByText("Page 1 of 9");
-    expect(counter.className).toContain("min-w-[16ch]");
-    expect(counter.className).toContain("tabular-nums");
-    expect(counter.className).toContain("whitespace-nowrap");
+    expect(screen.getByText("Page 1 of 9").parentElement?.childElementCount).toBe(1);
+    expect(screen.getByRole("group", { name: "Pages" }).textContent).toBe("PreviousPage 1 of 9Next");
 });
 
 it("says why a disabled button is disabled, next to it and as its description", () => {
