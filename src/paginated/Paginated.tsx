@@ -48,6 +48,7 @@ export function Paginated({ paging, labels, children }: { paging: Paging; labels
             <PreviousNext
                 label={said.pages}
                 counter={said.page(page, hasNext === undefined ? pages : null)}
+                {...(hasNext === undefined ? { widestCounter: said.page(pages, pages) } : {})}
                 previousLabel={said.previous}
                 nextLabel={said.next}
                 previousDisabled={page <= 1}

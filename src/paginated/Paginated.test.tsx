@@ -21,6 +21,18 @@ it("moves to the next and the previous page", () => {
     expect(screen.getByText("Page 2 of 3")).toBeDefined();
 });
 
+it("reserves the counter's width for its last page, so moving between pages does not move the buttons", () => {
+    render(
+        <Paginated paging={{ ...paging, page: 2, pages: 12 }}>
+            <p>rows</p>
+        </Paginated>,
+    );
+
+    const widest = screen.getByText("Page 12 of 12");
+    expect(widest.getAttribute("aria-hidden")).toBe("true");
+    expect(widest.parentElement).toBe(screen.getByText("Page 2 of 12").parentElement);
+});
+
 it("with one page keeps the controls' space but hides them", () => {
     const { container } = render(
         <Paginated paging={{ ...paging, page: 1, pages: 1 }}>

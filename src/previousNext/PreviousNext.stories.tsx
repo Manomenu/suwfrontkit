@@ -25,14 +25,17 @@ export const Disabled: Story = {
     },
 };
 
+const STEP_COUNTERS = ["1/12", "12/12", "–/12"];
+
 export const KeepsItsButtonsInPlace: Story = {
     render: () => (
         <div className="flex w-fit flex-col items-start gap-2">
-            {["1 of 1", "12 current steps"].map((counter) => (
+            {STEP_COUNTERS.map((counter) => (
                 <PreviousNext
                     key={counter}
                     label={`Current steps: ${counter}`}
                     counter={counter}
+                    widestCounter="12/12"
                     size="xs"
                     previousLabel="Previous current step"
                     nextLabel="Next current step"
@@ -44,12 +47,34 @@ export const KeepsItsButtonsInPlace: Story = {
     ),
     play: async ({ canvasElement }) => {
         const canvas = within(canvasElement);
-        const [short, long] = ["1 of 1", "12 current steps"].map((counter) =>
+        const [first, ...others] = STEP_COUNTERS.map((counter) =>
             within(canvas.getByRole("group", { name: `Current steps: ${counter}` }))
                 .getByRole("button", { name: "Next current step" })
                 .getBoundingClientRect(),
         );
-        await expect(long?.left).toBe(short?.left);
-        await expect(long?.width).toBe(short?.width);
+        for (const other of others) {
+            await expect(other.left).toBe(first?.left);
+            await expect(other.width).toBe(first?.width);
+        }
+    },
+};
+
+export const ShortCounterLeavesNoGap: Story = {
+    args: {
+        label: "Current steps",
+        counter: "1/1",
+        widestCounter: "1/1",
+        previousLabel: "Previous current step",
+        nextLabel: "Next current step",
+        size: "xs",
+    },
+    play: async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        const previous = canvas.getByRole("button", { name: "Previous current step" }).getBoundingClientRect();
+        const next = canvas.getByRole("button", { name: "Next current step" }).getBoundingClientRect();
+        const counter = canvas.getByText("1/1", { selector: "[data-counter]" }).getBoundingClientRect();
+        const gap = Number.parseFloat(getComputedStyle(canvas.getByRole("group")).columnGap);
+        await expect(next.left - previous.right).toBeCloseTo(counter.width + 2 * gap, 0);
+        await expect(counter.width).toBeLessThan(previous.width / 2);
     },
 };
