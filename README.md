@@ -198,15 +198,15 @@ real `Error` for the error boundary or the refusal, and needs no `!` on its data
 A server on suwbackkit refuses a request in one shared shape (its `Suwbackkit.Server` README owns the format): an RFC 9457
 ProblemDetails with two extension members.
 
-| Member | Type | Meaning |
-| :- | :- | :- |
-| `code` | string, always on a refusal | why the request was refused, a stable dotted word (`resource.stale`); branch on it, never on the text |
-| `mistakes` | array, optional | one item per thing that is wrong |
-| `mistakes[].code` | string | the kind of this mistake |
-| `mistakes[].message` | string | what is wrong, in a sentence |
-| `mistakes[].fix` | string | what to do about it, in a sentence, never empty |
-| `mistakes[].at` | string, optional | where it applies, in the app's own terms: a field path, a step id, a resource id |
-| other members of a mistake | any | the app's own detail (a stage, related items), kept as sent |
+| Member                     | Type                        | Meaning                                                                                               |
+| :------------------------- | :-------------------------- | :---------------------------------------------------------------------------------------------------- |
+| `code`                     | string, always on a refusal | why the request was refused, a stable dotted word (`resource.stale`); branch on it, never on the text |
+| `mistakes`                 | array, optional             | one item per thing that is wrong                                                                      |
+| `mistakes[].code`          | string                      | the kind of this mistake                                                                              |
+| `mistakes[].message`       | string                      | what is wrong, in a sentence                                                                          |
+| `mistakes[].fix`           | string                      | what to do about it, in a sentence, never empty                                                       |
+| `mistakes[].at`            | string, optional            | where it applies, in the app's own terms: a field path, a step id, a resource id                      |
+| other members of a mistake | any                         | the app's own detail (a stage, related items), kept as sent                                           |
 
 `ApiError` reads it: `error.code` (`null` when the answer carries none) and `error.mistakes` (only the items with a code, a message and
 a fix, each with `at` and its other members). Reading never throws: a server failure (500, 503), a body that is not JSON or no body
