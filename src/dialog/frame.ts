@@ -1,9 +1,17 @@
 import { useState } from "react";
 
+import { cn } from "../classNames.js";
+
 export const overlayClassName = "fixed inset-0 z-50 bg-backdrop";
 
-export const contentClassName =
-    "fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-3 overflow-y-auto p-5 shadow-lg outline-none";
+export type DialogWidth = "default" | "wide";
+
+export function contentClassName(width: DialogWidth) {
+    return cn(
+        "fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-full -translate-x-1/2 -translate-y-1/2 flex-col gap-3 overflow-y-auto p-5 shadow-lg outline-none",
+        width === "wide" ? "max-w-3xl" : "max-w-lg",
+    );
+}
 
 export const titleClassName = "text-lg font-semibold wrap-anywhere";
 

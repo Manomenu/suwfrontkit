@@ -80,3 +80,12 @@ it("keeps Tab inside, closes on Escape and gives focus back to what opened it", 
         expect(document.activeElement).toBe(opener);
     });
 });
+
+it("is narrow by default and wider when asked", () => {
+    const { rerender } = render(<Dialog open onOpenChange={vi.fn()} title="Rename" />);
+    expect(screen.getByRole("dialog").className).toContain("max-w-lg");
+
+    rerender(<Dialog open onOpenChange={vi.fn()} title="Rename" width="wide" />);
+    expect(screen.getByRole("dialog").className).toContain("max-w-3xl");
+    expect(screen.getByRole("dialog").className).not.toContain("max-w-lg");
+});
