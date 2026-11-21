@@ -6,8 +6,8 @@ Inter Variable that really loads, and React 19 components: Button, Badge, Alert,
 Legend, InfoTip, Table, Paper, Panel, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
 Diff, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, ResourceList, ResourceEdit, ToggleChip,
 ChipFilter, MultiSelect, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
-leave guard for unsaved changes, and FlowDiagram (a workflow diagram) under its own
-entry point.
+leave guard for unsaved changes with GuardedLink, a reader of server-sent events, and, each under its own entry point,
+FlowDiagram (a workflow diagram) and createQueryClient (a TanStack Query client).
 
 Desktop only (16:9 and 21:9 screens), dark only. Every component is in Storybook (`just storybook`).
 
@@ -107,7 +107,8 @@ export function Companies() {
   as render props (`link`, `add`, `back`) that return the app's own `<Link>`, which the library styles; data, state and
   callbacks come in as props; every label has an English default. `ResourceEdit` with `action` (or `onSubmit`) wraps its
   children in the form with the refusal, Save and Cancel in `StickyActions`; without either the children stand alone. Asking
-  before leaving unsaved changes stays in the app: it wraps `back` and `onCancel` with `mayLeave()` (below).
+  before leaving unsaved changes stays in the app: it returns a `GuardedLink` from `back`, `link` and `add`, and wraps
+  `onCancel` with `mayLeave()` (below).
 - `ResourceEdit` saves through a React form action: `action` gets the form's `FormData`, sync or async, so the fields can be
   uncontrolled (`name` and `defaultValue`). While it runs, Save reads `Saving…` (`pendingLabel`) and is disabled, and a
   second submit is ignored. With `useActionState` the result of the save comes back as the refusal and the mistakes. An
@@ -179,16 +180,35 @@ real `Error` for the error boundary or the refusal, and needs no `!` on its data
 - Moving an app over: delete its own hand-written client; each `request<T>("/notes/1")` becomes
   `dataOf(api.GET("/api/notes/{id}", { params: { path: { id } } }))` (a body goes as `body`, unserialized; the query as
   `params.query`), and `new ApiError(message)` in tests becomes `new ApiError(status, { detail: message })`.
-- With TanStack Query, give the `QueryClient` `retryUnlessRefused` as its `retry`: a refusal (a 4xx `ApiError`, such as a 404) shows at
-  once instead of after three retries, and a failure that may pass (a 5xx, the network) is asked again at most twice. The kit has no
-  TanStack Query dependency; the function only reads the error:
+- With TanStack Query, take the client from `createQueryClient()` (below); `retryUnlessRefused(failures, error)` is its `retry`, for
+  an app that builds its own `QueryClient`.
 
-    ```ts
-    import { retryUnlessRefused } from "@maniumek/suwfrontkit";
-    import { QueryClient } from "@tanstack/react-query";
+## TanStack Query
 
-    export const createQueryClient = () => new QueryClient({ defaultOptions: { queries: { retry: retryUnlessRefused } } });
-    ```
+`createQueryClient()` from `@maniumek/suwfrontkit/query` is a [TanStack Query](https://tanstack.com/query/latest) v5 `QueryClient`
+with the defaults our apps share. TanStack Query is an optional peer, so the entry point is its own and an app without it installs
+nothing:
+
+```sh
+pnpm add --save-exact @tanstack/react-query
+```
+
+```tsx
+import { createQueryClient } from "@maniumek/suwfrontkit/query";
+import { QueryClientProvider } from "@tanstack/react-query";
+
+<QueryClientProvider client={createQueryClient()}>
+    <App />
+</QueryClientProvider>;
+```
+
+- A refusal (a 4xx `ApiError`, such as a 404) shows at once instead of after three retries; a failure that may pass (a 5xx, the
+  network) is asked again at most twice (`retry: retryUnlessRefused`).
+- A query is never read again because the window got the focus back or the network came back (`refetchOnWindowFocus` and
+  `refetchOnReconnect` off): such a refetch would put the server's data into a form with unsaved changes. The app reads again when
+  it knows something changed, with `invalidateQueries`, for example on a live-update message.
+- Each call gives a new client: make one in `main.tsx`, and one per test. A test that wants no retries at all keeps its own
+  `new QueryClient({ defaultOptions: { queries: { retry: false } } })`.
 
 ## Leaving unsaved changes
 
@@ -199,6 +219,56 @@ tells any component whether a guard is on, for example to disable "Change id" un
 reads the same with `isLeaveGuardActive()` and hears each change through `onLeaveGuardChange(listener)`, which returns the
 function that stops listening: a live-update channel uses them to skip a reload or a navigation while a form is unsaved, and to
 tell the server the tab has unsaved changes. The guard knows no router; one form at a time holds it.
+
+`GuardedLink` is a real link (`<a href>`) that asks `mayLeave()` before it navigates, so Back, Edit and Add are links a user can
+open in a new tab. It knows no router: the app passes its own `navigate`, which a plain left click calls instead of loading the page.
+
+```tsx
+import { GuardedLink, ResourceEdit } from "@maniumek/suwfrontkit";
+import { useLocation } from "wouter";
+
+const [, navigate] = useLocation();
+
+<ResourceEdit
+    title="Company ASML"
+    back={(label) => (
+        <GuardedLink href="/companies" navigate={navigate}>
+            {label}
+        </GuardedLink>
+    )}
+>
+    …
+</ResourceEdit>;
+```
+
+- A click with Ctrl, Cmd, Shift or Alt, the middle button, a `target` other than `_self` and a `download` link are the browser's:
+  they open the address as a plain link would, without asking, because the form stays where it is.
+- The app's own `onClick` runs first; when it calls `preventDefault()`, the link does nothing more.
+- A router link the app keeps (wouter's `<Link>` in a navigation panel) asks the guard in its own `onClick`:
+  `onClick={(event) => { if (!mayLeave()) event.preventDefault(); }}`; wouter already leaves modified clicks to the browser.
+
+## Server-sent events
+
+`readServerSentEvents<Events>(body)` reads a stream of [server-sent events](https://html.spec.whatwg.org/multipage/server-sent-events.html)
+from a response body, typically the answer to a POST, which `EventSource` cannot send. It yields `{ name, data }` per event, with
+`data` read as JSON and both typed by `Events`, an object type whose keys are the event names, as the app's contract describes them:
+
+```ts
+import { dataOf, readServerSentEvents } from "@maniumek/suwfrontkit";
+
+type ReplyEvents = components["schemas"]["ReplyEvents"];
+
+const body = await dataOf(api.POST("/api/conversations/{id}/messages", { …, headers: { accept: "text/event-stream" }, parseAs: "stream" }));
+for await (const event of readServerSentEvents<ReplyEvents>(body)) {
+    if (event.name === "done") return event.data;
+    onPart(event.data);
+}
+```
+
+- Lines end with LF or CRLF; comments (`: keep alive`) and events without data are skipped; several `data:` lines are joined with a
+  line break; an event without an `event:` line is named `message`, as the standard says.
+- An event the stream ends in the middle of is dropped; what the stream's end means (finished, or broken off) is the app's to decide.
+- An error of the connection, or data that is not JSON, is thrown from the loop. Leaving the loop early cancels the stream.
 
 ## Texts and dates
 

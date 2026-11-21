@@ -136,6 +136,10 @@ export default defineConfig(
                             allow: { to: { element: { type: "component", captured: { name: "stickyActions" } } } },
                         },
                         {
+                            from: { element: { type: "component", captured: { name: "query" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "apiClient" } } } },
+                        },
+                        {
                             from: { element: { type: "component", captured: { name: "toggleChip" } } },
                             allow: { to: { element: { type: "component", captured: { name: "button" } } } },
                         },

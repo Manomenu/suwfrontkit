@@ -36,6 +36,8 @@ The tarball holds `dist/` only: ESM JavaScript and type declarations per source 
   `layer()`, `supports()` or a media query, where Tailwind refuses `@source`.
 - The diagram is a second entry point (`@maniumek/suwfrontkit/diagram` with its own CSS), because React Flow, its only
   user, is heavy: `@xyflow/react` is an optional peer, and the main entry never imports it.
+- The TanStack Query client is a third (`@maniumek/suwfrontkit/query`), for the same reason: `@tanstack/react-query` is an
+  optional peer, so an app without it (the template) builds without it.
 - Semantic tokens keep the names the apps already use (`--primary`, `--muted-foreground`, `--info`); each points at a
   Catppuccin Mocha colour (`--ctp-*`), and tints are `color-mix()` of two of them.
 
