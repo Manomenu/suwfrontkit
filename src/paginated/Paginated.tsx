@@ -1,8 +1,8 @@
 import { useRef, type ReactNode } from "react";
 
 import { Alert } from "../alert/Alert.js";
-import { Button } from "../button/Button.js";
 import { cn } from "../classNames.js";
+import { PreviousNext } from "../previousNext/PreviousNext.js";
 import { Spinner } from "../spinner/Spinner.js";
 
 export interface Paging {
@@ -45,36 +45,22 @@ export function Paginated({ paging, labels, children }: { paging: Paging; labels
     return (
         <div ref={top} className="flex scroll-mt-20 flex-col gap-2">
             {children}
-            <div
-                role="group"
-                aria-label={said.pages}
+            <PreviousNext
+                label={said.pages}
+                counter={said.page(page, hasNext === undefined ? pages : null)}
+                previousLabel={said.previous}
+                nextLabel={said.next}
+                previousDisabled={page <= 1}
+                nextDisabled={last}
+                onPrevious={() => {
+                    move(page - 1);
+                }}
+                onNext={() => {
+                    move(page + 1);
+                }}
                 aria-hidden={alone}
-                className={cn("flex items-center justify-center gap-3 text-sm", alone && "invisible")}
-            >
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={page <= 1}
-                    onClick={() => {
-                        move(page - 1);
-                    }}
-                >
-                    {said.previous}
-                </Button>
-                <span>{said.page(page, hasNext === undefined ? pages : null)}</span>
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={last}
-                    onClick={() => {
-                        move(page + 1);
-                    }}
-                >
-                    {said.next}
-                </Button>
-            </div>
+                className={cn("justify-center", alone && "invisible")}
+            />
         </div>
     );
 }

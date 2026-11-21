@@ -4,6 +4,8 @@ import { beforeEach, expect, it } from "vitest";
 
 import { AppShell } from "./AppShell.js";
 import { NavLink } from "./NavLink.js";
+import type { NavItem1 } from "./navTree.js";
+import { NavTree } from "./NavTree.js";
 
 const KEY = "test.navigation-panel";
 
@@ -123,4 +125,135 @@ it("refuses, at compile time, a shell without the app's icon or title and a link
         <NavLink key="empty-link-icon" href="/a" icon={null} label="Companies" current />,
     ];
     expect(refused).toHaveLength(4);
+});
+
+function tree(active: "bot" | "facts" | "projects"): NavItem1[] {
+    return [
+        {
+            icon,
+            label: "Bots",
+            href: "/bots",
+            current: false,
+            items: [
+                {
+                    icon,
+                    label: "shop",
+                    href: "/bots/shop",
+                    current: active === "bot",
+                    items: [
+                        { icon, label: "Facts", href: "/bots/shop/facts", current: active === "facts" },
+                        { icon, label: "Articles", href: "/bots/shop/articles", current: false },
+                    ],
+                },
+                {
+                    icon,
+                    label: "bank",
+                    href: "/bots/bank",
+                    current: false,
+                    items: [{ icon, label: "Facts", href: "/bots/bank/facts", current: false }],
+                },
+            ],
+        },
+        {
+            icon,
+            label: "Projects",
+            href: "/projects",
+            current: active === "projects",
+            items: [{ icon, label: "test-3", href: "/projects/3", current: false }],
+        },
+    ];
+}
+
+function nested(active: "bot" | "facts" | "projects") {
+    return (
+        <AppShell
+            appIcon={icon}
+            appTitle="myapp"
+            home={(link) => <a href="/" {...link} />}
+            panel={
+                <nav aria-label="Main">
+                    <NavTree items={tree(active)} />
+                </nav>
+            }
+            panelLabel="Navigation panel"
+            storageKey={KEY}
+        >
+            <p>content</p>
+        </AppShell>
+    );
+}
+
+const names = () =>
+    navigation()
+        .getAllByRole("link")
+        .map((link) => link.getAttribute("aria-label") ?? link.textContent);
+
+it("puts aria-current on the active link only, at any level, and marks its ancestors as holding it", () => {
+    render(nested("facts"));
+
+    const current = navigation()
+        .getAllByRole("link")
+        .filter((link) => link.hasAttribute("aria-current"));
+    expect(current.map((link) => [link.textContent, link.getAttribute("aria-current")])).toEqual([["Facts", "page"]]);
+    expect(current[0]?.getAttribute("href")).toBe("/bots/shop/facts");
+    expect(navigation().getByRole("link", { name: "Bots" }).hasAttribute("data-holds-current")).toBe(true);
+    expect(navigation().getByRole("link", { name: "shop" }).hasAttribute("data-holds-current")).toBe(true);
+    expect(navigation().getByRole("link", { name: "bank" }).hasAttribute("data-holds-current")).toBe(false);
+});
+
+it("expanded, shows every level, each nested list indented behind its guide line", () => {
+    render(nested("facts"));
+
+    expect(names()).toEqual(["Bots", "shop", "Facts", "Articles", "bank", "Facts", "Projects", "test-3"]);
+    expect(navigation().getByRole("link", { name: "shop" }).closest("ul")?.className).toContain("border-l");
+    expect(navigation().getByText("shop").getAttribute("title")).toBe("shop");
+});
+
+it.each([
+    ["facts", ["Bots", "shop", "Facts", "Projects"]],
+    ["bot", ["Bots", "shop", "Projects"]],
+    ["projects", ["Bots", "Projects"]],
+] as const)("collapsed with %s active, shows the level-1 icons and only the active path, inside one rail", (active, shown) => {
+    window.localStorage.setItem(KEY, "collapsed");
+    render(nested(active));
+
+    expect(names()).toEqual(shown);
+    const rail = navigation()
+        .queryAllByRole("listitem")
+        .filter((item) => item.dataset["slot"] === "nav-rail");
+    expect(rail.length).toBe(active === "projects" ? 0 : 1);
+    expect(
+        navigation()
+            .getAllByRole("link")
+            .filter((link) => link.hasAttribute("aria-current")).length,
+    ).toBe(1);
+});
+
+it("refuses, at compile time, a fourth level", () => {
+    const third: NavItem1 = {
+        icon,
+        label: "Bots",
+        href: "/bots",
+        current: false,
+        items: [
+            {
+                icon,
+                label: "shop",
+                href: "/bots/shop",
+                current: false,
+                items: [
+                    {
+                        icon,
+                        label: "Facts",
+                        href: "/bots/shop/facts",
+                        current: false,
+                        // @ts-expect-error the panel has three levels at most
+                        items: [{ icon, label: "Rules", href: "/bots/shop/facts/rules", current: true }],
+                    },
+                ],
+            },
+        ],
+    };
+
+    expect(third.items?.length).toBe(1);
 });

@@ -3,9 +3,9 @@
 `@maniumek/suwfrontkit`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
-Legend, InfoTip, Tooltip, Table, Paper, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
+Legend, InfoTip, Tooltip, Table, Paper, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink and NavTree, GraphicSplit, History,
 Diff with DiffLines, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, Spinner, ResourceList, ResourceEdit, ToggleChip,
-MultiSelect, SegmentedControl, CopyButton, MistakeList, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
+MultiSelect, SegmentedControl, CopyButton, MistakeList, PreviousNext, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
 leave guard for unsaved changes with GuardedLink and LinkProvider, a reader of server-sent events, and, each under its own entry point,
 FlowDiagram (a workflow diagram) and createQueryClient (a TanStack Query client).
 
@@ -95,6 +95,13 @@ export function Companies() {
 - Every `NavLink` needs an `icon` and a `label`. The expanded panel shows both; the collapsed panel is a strip of the icons,
   each named by its label and showing it in a tooltip, with `aria-current` in both states. With `asChild` the router's link
   is the child, empty: NavLink puts the icon and the label into it.
+- Nested navigation is a `NavTree` of at most three levels (`items: NavItem1[]`, each with `icon`, `label`, `href`, `current`,
+  optional `title` and `items`; a fourth level does not compile), such as Bots, a bot, its tabs. Expanded, each level is
+  indented by about 12 px behind a guide line from under its parent's icon, with 16 px icons below the first level, in the
+  panel's unchanged width (a long label truncates and shows in full on hover). The active item has the highlight and
+  `aria-current="page"`; each of its ancestors gets a lighter mark. Collapsed, the strip shows every first-level icon and, under
+  the one holding the active page, only the active path (its second- and third-level icons) in one tinted rail. Its links are
+  `href`s that move with the app's router under a `LinkProvider`. The app never indents by hand.
 - The library ships no icons: pass any React element, an inline `<svg>`, an `<img>` or an icon set such as
   [lucide-react](https://lucide.dev/guide/packages/lucide-react). The shell sizes them (28 px in the header, 20 px in the panel).
 - `AppShell` remembers the collapsed panel under `storageKey` in `localStorage`; it starts expanded. It knows no router:
@@ -161,6 +168,10 @@ export function Companies() {
   `<ErrorBoundary fallback={({ error }) => <ErrorScreen error={error} title="This screen failed to open." actions={…} />}>`.
 - `SegmentedControl` picks one of a few options, all visible (a radio group: `label`, `options`, `value`, `onValueChange`);
   clicking the checked option keeps it.
+- `PreviousNext` is the Previous / counter / Next bar of `Paginated`, for any walk through a list (pages, current steps): a
+  group named by its `label`, the `counter` text in a slot of a fixed width with figures of one width, so a longer or shorter
+  counter never moves the buttons; `previousDisabled`, `nextDisabled`, an optional `reason` shown beside disabled buttons and
+  read as their description, `size` `sm` (default) or `xs`, and English labels the app can replace.
 - `CopyButton` copies its `value` to the clipboard and reads `Copied` until the value changes; it takes the props of `Button`.
 - Choosing several values: `MultiSelect` searches a list and keeps a chosen value that is no longer offered; it takes
   `options`, `value` and `onValueChange` from the app and gives the value back in the order of the options. Give it a visible
