@@ -6,7 +6,7 @@ import { Page } from "../page/Page.js";
 import { Table } from "../table/Table.js";
 import { AppShell } from "./AppShell.js";
 import { NavLink } from "./NavLink.js";
-import type { NavItem1 } from "./navTree.js";
+import type { NavItem1 } from "./navItems.js";
 import { NavTree } from "./NavTree.js";
 
 const STORAGE_KEY = "storybook.navigation-panel";
