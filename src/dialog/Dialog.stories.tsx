@@ -6,7 +6,7 @@ import { Field } from "../field/Field.js";
 import { Input } from "../input/Input.js";
 import { Dialog } from "./Dialog.js";
 
-function RenameCompany({ startOpen }: { startOpen: boolean }) {
+function RenameCompany({ startOpen, width }: { startOpen: boolean; width: "default" | "wide" }) {
     const [open, setOpen] = useState(startOpen);
     return (
         <>
@@ -22,6 +22,7 @@ function RenameCompany({ startOpen }: { startOpen: boolean }) {
             <Dialog
                 open={open}
                 onOpenChange={setOpen}
+                width={width}
                 title="Rename ASML Holding"
                 description="The new name shows everywhere the company is listed."
                 actions={
@@ -54,8 +55,12 @@ function RenameCompany({ startOpen }: { startOpen: boolean }) {
     );
 }
 
-const meta = { component: RenameCompany, title: "Dialog", args: { startOpen: true } } satisfies Meta<typeof RenameCompany>;
+const meta = { component: RenameCompany, title: "Dialog", args: { startOpen: true, width: "default" } } satisfies Meta<
+    typeof RenameCompany
+>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Open: Story = {};
+
+export const Wide: Story = { args: { width: "wide" } };
