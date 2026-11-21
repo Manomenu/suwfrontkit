@@ -18,10 +18,33 @@ function problemOf(body: unknown): Problem {
     return typeof body === "object" && body !== null && !Array.isArray(body) ? (body as Problem) : {};
 }
 
+export interface Mistake<Code extends string = string> {
+    readonly code: Code;
+    readonly message: string;
+    readonly fix: string;
+    readonly at?: string;
+    readonly [member: string]: unknown;
+}
+
+function mistakeOf(item: unknown): Mistake | null {
+    const { code, message, fix, at, ...rest } = problemOf(item);
+    const [shared, said, fixed] = [text(code), text(message), text(fix)];
+    if (shared === null || said === null || fixed === null) return null;
+    return { ...rest, code: shared, message: said, fix: fixed, ...(typeof at === "string" ? { at } : {}) };
+}
+
+function mistakesIn(problem: Problem): readonly Mistake[] {
+    const listed = problem["mistakes"];
+    if (!Array.isArray(listed)) return [];
+    return (listed as unknown[]).map(mistakeOf).filter((mistake): mistake is Mistake => mistake !== null);
+}
+
 export class ApiError extends Error {
     override readonly name = "ApiError";
     readonly status: number;
     readonly problem: Problem;
+    readonly code: string | null;
+    readonly mistakes: readonly Mistake[];
 
     constructor(status: number, body: unknown, statusText = "") {
         const problem = problemOf(body);
@@ -33,7 +56,21 @@ export class ApiError extends Error {
         );
         this.status = status;
         this.problem = problem;
+        this.code = text(problem["code"]);
+        this.mistakes = mistakesIn(problem);
     }
+}
+
+export interface RefusalReader<Code extends string> {
+    codeOf: (error: unknown) => Code | null;
+    mistakesOf: (error: unknown) => readonly Mistake<Code>[];
+}
+
+export function refusalReader<Code extends string = string>(): RefusalReader<Code> {
+    return {
+        codeOf: (error) => (error instanceof ApiError ? (error.code as Code | null) : null),
+        mistakesOf: (error) => (error instanceof ApiError ? (error.mistakes as readonly Mistake<Code>[]) : []),
+    };
 }
 
 class PageRequest extends Request {

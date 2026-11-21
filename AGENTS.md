@@ -13,6 +13,7 @@ This repository is a published library: `@maniumek/suwfrontkit` on npmjs.com. It
 - While working, `pnpm exec suwgate check --quick`, and `pnpm exec suwgate step <step> [-- <tool args>]` runs one step
   (`suwgate step` lists them), e.g. `pnpm exec suwgate step stories -- src/button` after changing a component;
   `pnpm exec suwgate check` before calling a change done.
+- Test last: finish every change of the task, then run the full gate once and push once, so CI runs once. After a red run, fix all it shows, rerun only the tests that failed, and the full gate once when they pass. Quick checks of the part you change (its unit tests, the type checker, `suwgate step <step>`) are fine while building.
 
 ## Git
 

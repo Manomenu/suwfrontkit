@@ -1,6 +1,6 @@
 export { Alert } from "./alert/Alert.js";
 export { Anchor } from "./anchor/Anchor.js";
-export { ApiError, createApi, dataOf, retryUnlessRefused } from "./apiClient/apiClient.js";
+export { ApiError, createApi, dataOf, refusalReader, retryUnlessRefused, type Mistake, type RefusalReader } from "./apiClient/apiClient.js";
 export { AppShell } from "./appShell/AppShell.js";
 export { NavLink } from "./appShell/NavLink.js";
 export { Badge } from "./badge/Badge.js";
@@ -20,6 +20,7 @@ export { History, type HistoryEntry, type HistoryLabels } from "./history/Histor
 export { InfoTip } from "./infoTip/InfoTip.js";
 export { Input } from "./input/Input.js";
 export { Label } from "./label/Label.js";
+export { GuardedLink } from "./leaveGuard/GuardedLink.js";
 export { isLeaveGuardActive, mayLeave, onLeaveGuardChange, useLeaveGuard, useLeaveGuardActive } from "./leaveGuard/leaveGuard.js";
 export { MultiSelect } from "./multiSelect/MultiSelect.js";
 export { AppTitle } from "./page/appTitle.js";
@@ -30,6 +31,7 @@ export { ResourceEdit, type Deletion } from "./resourceEdit/ResourceEdit.js";
 export { ResourceList, type ResourceColumn } from "./resourceList/ResourceList.js";
 export { SegmentedControl } from "./segmentedControl/SegmentedControl.js";
 export { Select } from "./select/Select.js";
+export { readServerSentEvents, type ServerSentEvent } from "./serverSentEvents/serverSentEvents.js";
 export { Spinner } from "./spinner/Spinner.js";
 export { StatusBadge, type Status } from "./statusBadge/StatusBadge.js";
 export { StickyActions } from "./stickyActions/StickyActions.js";
