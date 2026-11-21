@@ -1,5 +1,25 @@
 # @maniumek/suwfrontkit
 
+## 0.9.0
+
+### Minor Changes
+
+- dc4f30f: Three building blocks the apps each carried a copy of; nothing is removed or renamed.
+  
+  - `createQueryClient()` from the new entry point `@maniumek/suwfrontkit/query`: a TanStack Query v5 client that retries with
+    `retryUnlessRefused` and never refetches on window focus or reconnect. `@tanstack/react-query` (^5) is an optional peer. An app
+    deletes its own `src/api/queryClient.ts` and imports this one; tests that only checked those defaults move to the kit.
+  - `GuardedLink`: a real `<a href>` that asks `mayLeave()` before it calls the app's `navigate`; Ctrl, Cmd, Shift, Alt and middle
+    clicks, `target` and `download` stay the browser's. Return it from the `link`, `add` and `back` props of `ResourceList` and
+    `ResourceEdit` in place of a `<button>` that called `mayLeave()` and navigated.
+  - `readServerSentEvents<Events>(body)`: a typed reader of a server-sent-event stream, for the answer of a POST, yielding
+    `{ name, data }` with the data read as JSON.
+- c99a312: `ApiError` reads the shared refusal format of suwbackkit servers: `error.code` (`string | null`) and `error.mistakes` (each with
+  `code`, `message`, `fix`, `at` when given, and the app's own members), plus `refusalReader<Code>()`, whose `codeOf(error)` and
+  `mistakesOf(error)` read any caught value, typed by the app's enum of codes. An answer that is not a refusal reads as no code and no mistakes; a
+  mistake without its fix is left out. An app deletes its own `codeOf` and `mistakesOf` helpers that dug into `problem`; nothing is
+  removed or renamed.
+
 ## 0.8.0
 
 ### Minor Changes
