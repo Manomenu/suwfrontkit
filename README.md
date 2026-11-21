@@ -157,7 +157,8 @@ export function Companies() {
   question with Cancel and Confirm (`role="alertdialog"`, closed only by its buttons).
 - `Tooltip` shows a short explanation beside any element on hover or focus (`<Tooltip label="…"><Badge>…</Badge></Tooltip>`);
   `disabled` leaves the element alone. `InfoTip` stays the one for a help icon next to a label; its `help` is any node, such as
-  a list, and `onOpenChange` tells the app when it opens, for example to load that list only then.
+  a list, `onOpenChange` tells the app when it opens, for example to load that list only then, and `icon` replaces its "i",
+  for example to tell a second tip beside the same label apart.
 - `Spinner` is the one way to say something is loading: a ring and its `label` as text (`<Spinner label="Loading the runs" />`),
   a status named by that label, in three sizes; a test finds it by that name. Paginated, ResourceList and ResourceEdit load with it.
 - `Badge` takes `dot` for a status dot before its text, `dot="pulsing"` while something runs (the pulse only when motion is
