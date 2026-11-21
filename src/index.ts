@@ -44,3 +44,4 @@ export { Table } from "./table/Table.js";
 export { Textarea } from "./textarea/Textarea.js";
 export { ToggleChip } from "./toggleChip/ToggleChip.js";
 export { Tooltip } from "./tooltip/Tooltip.js";
+export { UsagePanel, type Usage, type UsageLabels, type UsageLink } from "./usagePanel/UsagePanel.js";
