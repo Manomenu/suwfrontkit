@@ -1,6 +1,6 @@
 export { Alert } from "./alert/Alert.js";
 export { Anchor } from "./anchor/Anchor.js";
-export { ApiError, createApi, dataOf, retryUnlessRefused } from "./apiClient/apiClient.js";
+export { ApiError, createApi, dataOf, refusalReader, retryUnlessRefused, type Mistake, type RefusalReader } from "./apiClient/apiClient.js";
 export { AppShell } from "./appShell/AppShell.js";
 export { NavLink } from "./appShell/NavLink.js";
 export { Badge } from "./badge/Badge.js";

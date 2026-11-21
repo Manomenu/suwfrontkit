@@ -185,13 +185,44 @@ real `Error` for the error boundary or the refusal, and needs no `!` on its data
 - The client resolves the contract's paths against the page's address and calls the page's `fetch` at the moment of each call,
   so a component that calls the server works in a jsdom unit test, and `vi.stubGlobal("fetch", …)` reaches it even after the
   client was made.
-- An app's own ProblemDetails extensions are read from `problem`, typed by the app once, for example
-  `const mistakesOf = (error: ApiError) => (Array.isArray(error.problem["mistakes"]) ? (error.problem["mistakes"] as Mistake[]) : [])`.
+- A refusal in the shared format (below) is read with `code` and `mistakes`; any other extension of the app is still read from
+  `problem`.
 - Moving an app over: delete its own hand-written client; each `request<T>("/notes/1")` becomes
   `dataOf(api.GET("/api/notes/{id}", { params: { path: { id } } }))` (a body goes as `body`, unserialized; the query as
   `params.query`), and `new ApiError(message)` in tests becomes `new ApiError(status, { detail: message })`.
 - With TanStack Query, take the client from `createQueryClient()` (below); `retryUnlessRefused(failures, error)` is its `retry`, for
   an app that builds its own `QueryClient`.
+
+## Refusals
+
+A server on suwbackkit refuses a request in one shared shape (its `Suwbackkit.Server` README owns the format): an RFC 9457
+ProblemDetails with two extension members.
+
+| Member | Type | Meaning |
+| :- | :- | :- |
+| `code` | string, always on a refusal | why the request was refused, a stable dotted word (`resource.stale`); branch on it, never on the text |
+| `mistakes` | array, optional | one item per thing that is wrong |
+| `mistakes[].code` | string | the kind of this mistake |
+| `mistakes[].message` | string | what is wrong, in a sentence |
+| `mistakes[].fix` | string | what to do about it, in a sentence, never empty |
+| `mistakes[].at` | string, optional | where it applies, in the app's own terms: a field path, a step id, a resource id |
+| other members of a mistake | any | the app's own detail (a stage, related items), kept as sent |
+
+`ApiError` reads it: `error.code` (`null` when the answer carries none) and `error.mistakes` (only the items with a code, a message and
+a fix, each with `at` and its other members). Reading never throws: a server failure (500, 503), a body that is not JSON or no body
+gives no code and no mistakes.
+
+`refusalReader<Code>()` gives `codeOf(error)` and `mistakesOf(error)`, which read the same from anything a `catch` or a query's
+`error` holds, typed by the app's enum of codes from its contract, without a cast in the app. Make it once, next to the app's `api`:
+
+```ts
+import { refusalReader } from "@maniumek/suwfrontkit";
+
+export const { codeOf, mistakesOf } = refusalReader<components["schemas"]["RefusalCode"]>();
+
+if (codeOf(error) === "resource.stale") offerReload();
+const byStep = Map.groupBy(mistakesOf(error), (mistake) => mistake.at);
+```
 
 ## TanStack Query
 
