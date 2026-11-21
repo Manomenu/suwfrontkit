@@ -1,7 +1,7 @@
 import { act, render, renderHook, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 
-import { mayLeave, useLeaveGuard, useLeaveGuardActive } from "./leaveGuard.js";
+import { isLeaveGuardActive, mayLeave, onLeaveGuardChange, useLeaveGuard, useLeaveGuardActive } from "./leaveGuard.js";
 
 afterEach(() => {
     vi.restoreAllMocks();
@@ -85,4 +85,28 @@ it("tells every reader when the guard turns on and off", () => {
         guard.unmount();
     });
     expect(result.current).toBe(false);
+});
+
+it("tells code outside React whether a guard is on, and calls back each time it turns on or off until unsubscribed", () => {
+    const changes: boolean[] = [];
+    const stop = onLeaveGuardChange(() => {
+        changes.push(isLeaveGuardActive());
+    });
+    const guard = renderHook(
+        ({ dirty }) => {
+            useLeaveGuard(dirty);
+        },
+        { initialProps: { dirty: false } },
+    );
+    expect(isLeaveGuardActive()).toBe(false);
+
+    guard.rerender({ dirty: true });
+    expect(isLeaveGuardActive()).toBe(true);
+    guard.rerender({ dirty: false });
+    stop();
+    guard.rerender({ dirty: true });
+    guard.unmount();
+
+    expect(changes).toEqual([true, false]);
+    expect(isLeaveGuardActive()).toBe(false);
 });
