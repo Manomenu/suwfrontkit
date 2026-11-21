@@ -1,5 +1,11 @@
 # @maniumek/suwfrontkit
 
+## 0.7.0
+
+### Minor Changes
+
+- 56526b4: `isLeaveGuardActive()` and `onLeaveGuardChange(listener)`: code outside React (a live-update channel, for example) reads whether a leave guard is on and hears each change. Nothing an app must change.
+
 ## 0.6.0
 
 ### Minor Changes
