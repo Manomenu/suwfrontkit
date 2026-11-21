@@ -4,7 +4,7 @@ import { beforeEach, expect, it } from "vitest";
 
 import { AppShell } from "./AppShell.js";
 import { NavLink } from "./NavLink.js";
-import type { NavItem1 } from "./navTree.js";
+import type { NavItem1 } from "./navItems.js";
 import { NavTree } from "./NavTree.js";
 
 const KEY = "test.navigation-panel";

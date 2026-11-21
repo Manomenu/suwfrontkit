@@ -2,7 +2,7 @@ import { use } from "react";
 
 import { NavLevelContext, type NavLevel } from "./navLevel.js";
 import { NavLink } from "./NavLink.js";
-import { activePath, holdsCurrent, type NavItem1, type NavItem2, type NavItem3 } from "./navTree.js";
+import { activePath, holdsCurrent, type NavItem1, type NavItem2, type NavItem3 } from "./navItems.js";
 import { PanelContext } from "./panelContext.js";
 
 const GUIDE = "ml-3 flex flex-col gap-0.5 border-l border-border";
