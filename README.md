@@ -3,9 +3,9 @@
 `@maniumek/suwfrontkit`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
-Legend, InfoTip, Table, Paper, Panel, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
-Diff, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, ResourceList, ResourceEdit, ToggleChip,
-ChipFilter, MultiSelect, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
+Legend, InfoTip, Tooltip, Table, Paper, Panel, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
+Diff, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, Spinner, ResourceList, ResourceEdit, ToggleChip,
+ChipFilter, MultiSelect, SegmentedControl, CopyButton, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
 leave guard for unsaved changes with GuardedLink, a reader of server-sent events, and, each under its own entry point,
 FlowDiagram (a workflow diagram) and createQueryClient (a TanStack Query client).
 
@@ -141,6 +141,16 @@ export function Companies() {
 - `ConfirmDialog` with an `onConfirm` that returns a promise runs it as a transition: the confirm button is busy
   (`pendingLabel`) and Cancel, Escape and a second confirm do nothing until it settles; it closes when the promise resolves
   and stays open when it rejects.
+- `ConfirmDialog` with `confirmDisabled` keeps its confirm button disabled until the app says the answer is given, for example
+  until the name of what is deleted is typed into an `Input` among its children. `Dialog` and `ConfirmDialog` take
+  `width="wide"` (48rem instead of 32rem) for a body that needs it, such as a YAML definition or a plan.
+- `Tooltip` shows a short explanation beside any element on hover or focus (`<Tooltip label="…"><Badge>…</Badge></Tooltip>`);
+  `disabled` leaves the element alone. `InfoTip` stays the one for a help icon next to a label.
+- `Spinner` is a status named by its `label` (`<Spinner label="Loading the runs" />`), in three sizes; a test finds it by that
+  name.
+- `SegmentedControl` picks one of a few options, all visible (a radio group: `label`, `options`, `value`, `onValueChange`);
+  clicking the checked option keeps it.
+- `CopyButton` copies its `value` to the clipboard and reads `Copied` until the value changes; it takes the props of `Button`.
 - Choosing several values: `ChipFilter` shows a short, fixed list as chips, all visible at once; `MultiSelect` searches a
   long or growing list and keeps a chosen value that is no longer offered. Both take `options`, `value` and
   `onValueChange` from the app and give the value back in the order of the options. `ToggleChip` is one on/off chip.

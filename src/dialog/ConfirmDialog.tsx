@@ -3,7 +3,15 @@ import { AlertDialog } from "radix-ui";
 
 import { Button } from "../button/Button.js";
 import { Paper } from "../paper/Paper.js";
-import { actionsClassName, contentClassName, descriptionClassName, overlayClassName, titleClassName, useReturnFocus } from "./frame.js";
+import {
+    actionsClassName,
+    contentClassName,
+    descriptionClassName,
+    overlayClassName,
+    titleClassName,
+    useReturnFocus,
+    type DialogWidth,
+} from "./frame.js";
 
 export function ConfirmDialog({
     open,
@@ -16,6 +24,8 @@ export function ConfirmDialog({
     confirmLabel = "Confirm",
     cancelLabel = "Cancel",
     pendingLabel = "Working…",
+    confirmDisabled = false,
+    width = "default",
 }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -27,12 +37,14 @@ export function ConfirmDialog({
     confirmLabel?: string;
     cancelLabel?: string;
     pendingLabel?: string;
+    confirmDisabled?: boolean;
+    width?: DialogWidth;
 }) {
     const [pending, startTransition] = useTransition();
     const returnFocus = useReturnFocus(open);
 
     const confirm = () => {
-        if (pending) return;
+        if (pending || confirmDisabled) return;
         const outcome = onConfirm();
         if (!(outcome instanceof Promise)) {
             onOpenChange(false);
@@ -64,7 +76,7 @@ export function ConfirmDialog({
                     onCloseAutoFocus={returnFocus}
                     {...(description === undefined && { "aria-describedby": undefined })}
                 >
-                    <Paper className={contentClassName}>
+                    <Paper className={contentClassName(width)}>
                         <AlertDialog.Title className={titleClassName}>{title}</AlertDialog.Title>
                         {description !== undefined && (
                             <AlertDialog.Description className={descriptionClassName}>{description}</AlertDialog.Description>
@@ -76,7 +88,14 @@ export function ConfirmDialog({
                                     {cancelLabel}
                                 </Button>
                             </AlertDialog.Cancel>
-                            <Button type="button" variant={variant} aria-busy={pending} aria-disabled={pending} onClick={confirm}>
+                            <Button
+                                type="button"
+                                variant={variant}
+                                aria-busy={pending}
+                                aria-disabled={pending}
+                                disabled={confirmDisabled}
+                                onClick={confirm}
+                            >
                                 {pending ? pendingLabel : confirmLabel}
                             </Button>
                         </div>

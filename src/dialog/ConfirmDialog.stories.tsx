@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, within } from "storybook/test";
 
 import { Button } from "../button/Button.js";
+import { Input } from "../input/Input.js";
 import { ConfirmDialog } from "./ConfirmDialog.js";
 
 function DeleteCompany({
@@ -68,5 +69,51 @@ export const Pending: Story = {
         await userEvent.click(within(dialog).getByRole("button", { name: "Delete company" }));
         await expect(within(dialog).getByRole("button", { name: "Deleting…" })).toHaveAttribute("aria-busy", "true");
         await expect(within(dialog).getByRole("button", { name: "Keep it" })).toBeDisabled();
+    },
+};
+
+function DeleteByName() {
+    const [typed, setTyped] = useState("");
+    const [open, setOpen] = useState(true);
+    return (
+        <>
+            <Button
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                    setOpen(true);
+                }}
+            >
+                Delete agent
+            </Button>
+            <ConfirmDialog
+                open={open}
+                onOpenChange={setOpen}
+                title="Delete agent refunds?"
+                description="The agent is deleted for good, with its runs and conversations."
+                variant="destructive"
+                confirmLabel="Delete"
+                confirmDisabled={typed !== "refunds"}
+                onConfirm={() => undefined}
+            >
+                <Input
+                    aria-label="Type the agent's name to confirm"
+                    value={typed}
+                    onChange={(event) => {
+                        setTyped(event.currentTarget.value);
+                    }}
+                />
+            </ConfirmDialog>
+        </>
+    );
+}
+
+export const ConfirmedByTypingTheName: Story = {
+    render: () => <DeleteByName />,
+    play: async () => {
+        const dialog = await within(document.body).findByRole("alertdialog");
+        await expect(within(dialog).getByRole("button", { name: "Delete" })).toBeDisabled();
+        await userEvent.type(within(dialog).getByRole("textbox", { name: "Type the agent's name to confirm" }), "refunds");
+        await expect(within(dialog).getByRole("button", { name: "Delete" })).toBeEnabled();
     },
 };

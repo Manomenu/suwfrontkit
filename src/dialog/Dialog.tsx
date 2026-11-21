@@ -2,7 +2,15 @@ import type { ReactNode } from "react";
 import { Dialog as Primitive } from "radix-ui";
 
 import { Paper } from "../paper/Paper.js";
-import { actionsClassName, contentClassName, descriptionClassName, overlayClassName, titleClassName, useReturnFocus } from "./frame.js";
+import {
+    actionsClassName,
+    contentClassName,
+    descriptionClassName,
+    overlayClassName,
+    titleClassName,
+    useReturnFocus,
+    type DialogWidth,
+} from "./frame.js";
 
 export function Dialog({
     open,
@@ -10,6 +18,7 @@ export function Dialog({
     title,
     description,
     actions,
+    width = "default",
     children,
 }: {
     open: boolean;
@@ -17,6 +26,7 @@ export function Dialog({
     title: string;
     description?: ReactNode;
     actions?: ReactNode;
+    width?: DialogWidth;
     children?: ReactNode;
 }) {
     const returnFocus = useReturnFocus(open);
@@ -29,7 +39,7 @@ export function Dialog({
                     onCloseAutoFocus={returnFocus}
                     {...(description === undefined && { "aria-describedby": undefined })}
                 >
-                    <Paper className={contentClassName}>
+                    <Paper className={contentClassName(width)}>
                         <Primitive.Title className={titleClassName}>{title}</Primitive.Title>
                         {description !== undefined && (
                             <Primitive.Description className={descriptionClassName}>{description}</Primitive.Description>

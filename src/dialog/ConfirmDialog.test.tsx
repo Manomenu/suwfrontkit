@@ -78,3 +78,31 @@ it("stays open and can be confirmed again when the promise rejects", async () =>
     expect(onOpenChange).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Confirm" }).getAttribute("aria-busy")).toBe("false");
 });
+
+it("keeps its confirm button disabled while the app says the answer is not given yet", () => {
+    const onConfirm = vi.fn();
+    const { rerender } = render(
+        <ConfirmDialog
+            open
+            onOpenChange={vi.fn()}
+            title="Delete agent refunds?"
+            confirmLabel="Delete"
+            confirmDisabled
+            onConfirm={onConfirm}
+        />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(screen.getByRole("button", { name: "Delete" })).toHaveProperty("disabled", true);
+    expect(onConfirm).not.toHaveBeenCalled();
+
+    rerender(<ConfirmDialog open onOpenChange={vi.fn()} title="Delete agent refunds?" confirmLabel="Delete" onConfirm={onConfirm} />);
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(onConfirm).toHaveBeenCalledOnce();
+});
+
+it("is wider when asked", () => {
+    render(<ConfirmDialog open onOpenChange={vi.fn()} title="Re-check this run?" width="wide" onConfirm={vi.fn()} />);
+
+    expect(screen.getByRole("alertdialog").className).toContain("max-w-3xl");
+});
