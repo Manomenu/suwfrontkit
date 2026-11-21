@@ -44,8 +44,8 @@ const meta = {
         columns,
         rows: companies,
         idOf: (company: Company) => company.ticker,
-        link: (company: Company, label: string) => <a href={`#companies/${company.ticker}`}>{label}</a>,
-        add: (label: string) => <a href="#companies/new">{label}</a>,
+        hrefOf: (company: Company) => `#companies/${company.ticker}`,
+        addHref: "#companies/new",
         addLabel: "Add a company",
     },
 } satisfies Meta<typeof ResourceList<Company>>;

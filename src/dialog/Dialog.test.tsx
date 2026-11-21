@@ -89,3 +89,25 @@ it("is narrow by default and wider when asked", () => {
     expect(screen.getByRole("dialog").className).toContain("max-w-3xl");
     expect(screen.getByRole("dialog").className).not.toContain("max-w-lg");
 });
+
+it("with closable has a Close button that asks to close, and its body scrolls on its own between the title and the actions", () => {
+    const onOpenChange = vi.fn();
+    render(
+        <Dialog open onOpenChange={onOpenChange} title="Source" closable actions={<button type="button">Copy</button>}>
+            <p>A long article</p>
+        </Dialog>,
+    );
+
+    const body = screen.getByText("A long article").parentElement?.parentElement;
+    expect(body?.dataset["slot"]).toBe("dialog-body");
+    expect(body?.className).toContain("overflow-y-auto");
+    expect(screen.getByRole("dialog").className).not.toContain("overflow-y-auto");
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+});
+
+it("without closable has no Close button", () => {
+    render(<Dialog open onOpenChange={vi.fn()} title="Rename" />);
+
+    expect(screen.queryByRole("button", { name: "Close" })).toBeNull();
+});

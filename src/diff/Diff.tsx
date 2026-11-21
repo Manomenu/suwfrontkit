@@ -29,7 +29,7 @@ const COLUMNS = 4;
 const NUMBER = "w-px px-2 text-right align-top whitespace-nowrap text-muted-foreground select-none";
 const TEXT = "px-2 align-top whitespace-pre-wrap wrap-anywhere";
 
-function Said({ row, labels }: { row: Row; labels: DiffLabels }) {
+function Said({ row, labels }: { row: Pick<Row, "change" | "text">; labels: DiffLabels }) {
     const said = row.change === "added" ? labels.added : row.change === "removed" ? labels.removed : null;
     return (
         <>
@@ -143,6 +143,49 @@ export function Diff({
                             rowsOf(block.rows, view, said)
                         ),
                     )}
+                </tbody>
+            </table>
+        </div>
+    );
+}
+
+export interface DiffLine {
+    change: Change | "folded";
+    text: string;
+}
+
+function LineRow({ line, labels }: { line: DiffLine; labels: DiffLabels }) {
+    if (line.change === "folded") {
+        return (
+            <tr>
+                <td colSpan={2} className="bg-muted/50 px-2 py-1 font-sans text-muted-foreground">
+                    {line.text}
+                </td>
+            </tr>
+        );
+    }
+    const { change, text } = line;
+    return (
+        <tr data-change={change} className={BACKGROUNDS[change]}>
+            <td aria-hidden="true" className={cn("w-px pl-2 align-top select-none", MARKER_COLORS[change])}>
+                {MARKERS[change]}
+            </td>
+            <td className={TEXT}>
+                <Said row={{ change, text }} labels={labels} />
+            </td>
+        </tr>
+    );
+}
+
+export function DiffLines({ lines, labels, className }: { lines: readonly DiffLine[]; labels?: Partial<DiffLabels>; className?: string }) {
+    const said = { ...ENGLISH, ...labels };
+    return (
+        <div className={cn("overflow-auto rounded-lg border border-border", className)}>
+            <table className="w-full border-collapse font-mono text-xs leading-5">
+                <tbody>
+                    {lines.map((line, index) => (
+                        <LineRow key={`${String(index)}:${line.change}`} line={line} labels={said} />
+                    ))}
                 </tbody>
             </table>
         </div>

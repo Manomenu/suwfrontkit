@@ -5,7 +5,7 @@ import { expect, userEvent, within } from "storybook/test";
 import { Badge } from "../badge/Badge.js";
 import { Button } from "../button/Button.js";
 import { Diff } from "../diff/Diff.js";
-import { Panel } from "../paper/Paper.js";
+import { Paper } from "../paper/Paper.js";
 import { History, type HistoryEntry } from "./History.js";
 
 const entries: HistoryEntry[] = [
@@ -47,9 +47,9 @@ const meta = {
     args: { entries, locale: "en-GB", timeZone: "UTC" },
     render: (args) => (
         <div className="w-[720px]">
-            <Panel title="History">
+            <Paper title="History">
                 <History {...args} />
-            </Panel>
+            </Paper>
         </div>
     ),
 } satisfies Meta<typeof History>;
@@ -88,7 +88,7 @@ function FromTheServer() {
     const fetched = many.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
     return (
         <div className="w-[720px]">
-            <Panel title="Historia">
+            <Paper title="Historia">
                 <History
                     entries={fetched}
                     page={page}
@@ -99,7 +99,7 @@ function FromTheServer() {
                     timeZone="Europe/Warsaw"
                     labels={{ list: "Historia", previous: "Wstecz", next: "Dalej", page: (shown) => `Strona ${String(shown)}` }}
                 />
-            </Panel>
+            </Paper>
         </div>
     );
 }
@@ -118,7 +118,7 @@ function WithDiffs() {
     const [shown, setShown] = useState<string | null>(null);
     return (
         <div className="w-[960px]">
-            <Panel title="History">
+            <Paper title="History">
                 <History
                     locale="en-GB"
                     timeZone="UTC"
@@ -138,7 +138,7 @@ function WithDiffs() {
                     }))}
                 />
                 {shown !== null && <Diff before={"Prices\nMonday to Friday\n"} after={"Price list\nMonday to Friday\n"} />}
-            </Panel>
+            </Paper>
         </div>
     );
 }

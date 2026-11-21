@@ -1,9 +1,13 @@
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { Tooltip } from "radix-ui";
 
-export function InfoTip({ about, help }: { about: string; help: string }) {
-    const [open, setOpen] = useState(false);
+export function InfoTip({ about, help, onOpenChange }: { about: string; help: ReactNode; onOpenChange?: (open: boolean) => void }) {
+    const [open, setOpenState] = useState(false);
     const descriptionId = useId();
+    const setOpen = (next: boolean) => {
+        setOpenState(next);
+        onOpenChange?.(next);
+    };
     return (
         <Tooltip.Provider delayDuration={150}>
             <Tooltip.Root open={open} onOpenChange={setOpen}>
@@ -29,9 +33,6 @@ export function InfoTip({ about, help }: { about: string; help: string }) {
                             <circle cx="8" cy="8" r="6.75" />
                             <path d="M8 7.25v4M8 4.5v.5" strokeLinecap="round" />
                         </svg>
-                        <span id={descriptionId} hidden>
-                            {help}
-                        </span>
                     </button>
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
@@ -45,6 +46,9 @@ export function InfoTip({ about, help }: { about: string; help: string }) {
                     </Tooltip.Content>
                 </Tooltip.Portal>
             </Tooltip.Root>
+            <span id={descriptionId} hidden>
+                {help}
+            </span>
         </Tooltip.Provider>
     );
 }

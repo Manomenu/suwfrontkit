@@ -1,17 +1,24 @@
 import { render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 
-import { Panel, Paper } from "./Paper.js";
+import { Paper } from "./Paper.js";
 
-it("a panel is a region named by its heading", () => {
+it("paper with a title is a region named by its heading", () => {
     render(
-        <Panel title="Valuation">
+        <Paper title="Valuation">
             <p>Six percent a year.</p>
-        </Panel>,
+        </Paper>,
     );
 
     expect(screen.getByRole("region", { name: "Valuation" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "Valuation", level: 2 })).toBeDefined();
+});
+
+it("paper without a title is no region and has no heading", () => {
+    render(<Paper>Six percent a year.</Paper>);
+
+    expect(screen.queryByRole("region")).toBeNull();
+    expect(screen.queryByRole("heading")).toBeNull();
 });
 
 it("paper keeps the caller's classes", () => {

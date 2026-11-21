@@ -2,41 +2,42 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { useActionState, useState } from "react";
 import { expect, it, vi } from "vitest";
 
+import type { Mistake } from "../apiClient/apiClient.js";
+import { LinkProvider } from "../leaveGuard/LinkProvider.js";
 import { ResourceList } from "../resourceList/ResourceList.js";
 import { ResourceEdit } from "./ResourceEdit.js";
+
+const NO_TICKER: Mistake = { code: "company.ticker.missing", message: "The ticker is empty.", fix: "Write the ticker.", at: "ticker" };
 
 function Companies() {
     const [names, setNames] = useState(["ASML", "DNP"]);
     const [open, setOpen] = useState<string | null>(null);
     const [draft, setDraft] = useState("");
-    const [mistakes, setMistakes] = useState<string[]>([]);
+    const [mistakes, setMistakes] = useState<Mistake[]>([]);
     if (open === null) {
         return (
-            <ResourceList
-                title="Companies"
-                columns={[{ header: "Ticker", cell: (name) => name }]}
-                rows={names}
-                idOf={(name) => name}
-                link={(name, label) => (
-                    <a
-                        href={`#${name}`}
-                        onClick={(event) => {
-                            event.preventDefault();
-                            setOpen(name);
-                            setDraft(name);
-                        }}
-                    >
-                        {label}
-                    </a>
-                )}
-            />
+            <LinkProvider
+                navigate={(href) => {
+                    const name = href.replace("/companies/", "");
+                    setOpen(name);
+                    setDraft(name);
+                }}
+            >
+                <ResourceList
+                    title="Companies"
+                    columns={[{ header: "Ticker", cell: (name) => name }]}
+                    rows={names}
+                    idOf={(name) => name}
+                    hrefOf={(name) => `/companies/${name}`}
+                />
+            </LinkProvider>
         );
     }
     return (
         <ResourceEdit
             title={`Company ${open}`}
             onSubmit={() => {
-                setMistakes(draft === "" ? ["Write the ticker."] : []);
+                setMistakes(draft === "" ? [NO_TICKER] : []);
             }}
             refusal={mistakes.length > 0 ? "The company was not saved." : null}
             mistakes={mistakes}
@@ -71,7 +72,7 @@ it("goes from the list to the edit screen, shows a refusal, and deletes only aft
 
     fireEvent.change(screen.getByLabelText("Ticker"), { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(screen.getByRole("alert").textContent).toBe("The company was not saved.Write the ticker.");
+    expect(screen.getByRole("alert").textContent).toBe("The company was not saved.ticker: The ticker is empty. Write the ticker.");
 
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
     const asking = screen.getByRole("alertdialog", { name: "Delete company ASML?" });
@@ -86,9 +87,9 @@ it("goes from the list to the edit screen, shows a refusal, and deletes only aft
     expect(screen.getByRole("row", { name: /DNP/ })).toBeDefined();
 });
 
-it("draws the way back as the app's own link with the default label", () => {
+it("draws the way back as a link with the default label", () => {
     render(
-        <ResourceEdit title="Company ASML" back={(label) => <a href="/companies">{label}</a>}>
+        <ResourceEdit title="Company ASML" backHref="/companies">
             <p>fields</p>
         </ResourceEdit>,
     );
@@ -137,7 +138,7 @@ it("hands the form's data to the action, shows Saving… and refuses a second su
 it("shows what the action returned through useActionState, the way an app reports a refused save", async () => {
     function Company() {
         const [mistakes, save] = useActionState(
-            (_previous: string[], formData: FormData) => (formData.get("ticker") === "" ? ["Write the ticker."] : []),
+            (_previous: Mistake[], formData: FormData) => (formData.get("ticker") === "" ? [NO_TICKER] : []),
             [],
         );
         return (
@@ -155,7 +156,7 @@ it("shows what the action returned through useActionState, the way an app report
 
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    expect((await screen.findByRole("alert")).textContent).toBe("The company was not saved.Write the ticker.");
+    expect((await screen.findByRole("alert")).textContent).toBe("The company was not saved.ticker: The ticker is empty. Write the ticker.");
 });
 
 it("submits one way: an action, or onSubmit with saving, never both", () => {
@@ -220,17 +221,16 @@ it("a blocked deletion disables Delete and says why, and a refused one shows the
 });
 
 it("shows the loading line and a failure instead of the screen, keeping the way back", () => {
-    const back = (label: string) => <a href="/companies">{label}</a>;
     const { rerender } = render(
-        <ResourceEdit title="Company TSLA" back={back} ready={false}>
+        <ResourceEdit title="Company TSLA" backHref="/companies" ready={false}>
             <p>fields</p>
         </ResourceEdit>,
     );
-    expect(screen.getByText("Loading…")).toBeDefined();
+    expect(screen.getByRole("status", { name: "Loading…" })).toBeDefined();
     expect(screen.queryByText("fields")).toBeNull();
 
     rerender(
-        <ResourceEdit title="Company TSLA" back={back} failure="There is no company TSLA.">
+        <ResourceEdit title="Company TSLA" backHref="/companies" failure="There is no company TSLA.">
             <p>fields</p>
         </ResourceEdit>,
     );

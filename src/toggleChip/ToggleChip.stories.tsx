@@ -51,3 +51,11 @@ export const PressedOnClick: Story = {
         await expect(args.onPressedChange).toHaveBeenCalledWith(true);
     },
 };
+
+export const ExplainedOnHover: Story = {
+    args: { children: "Only rows that differ", help: "Hide the rows that are the same in every run." },
+    play: async ({ canvasElement }) => {
+        await userEvent.hover(within(canvasElement).getByRole("button", { name: "Only rows that differ" }));
+        await expect(await within(document.body).findByRole("tooltip")).toHaveTextContent("Hide the rows that are the same in every run.");
+    },
+};

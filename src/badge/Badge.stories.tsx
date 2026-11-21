@@ -18,3 +18,19 @@ export const Variants: Story = {
         </div>
     ),
 };
+
+export const WithADot: Story = {
+    render: () => (
+        <div className="flex flex-wrap items-center gap-3">
+            <Badge variant="success" dot>
+                Passed
+            </Badge>
+            <Badge variant="danger" dot>
+                Down
+            </Badge>
+            <Badge variant="info" dot="pulsing">
+                Running
+            </Badge>
+        </div>
+    ),
+};

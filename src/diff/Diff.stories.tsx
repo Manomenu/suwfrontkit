@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent, within } from "storybook/test";
 
-import { Diff } from "./Diff.js";
+import { Diff, DiffLines } from "./Diff.js";
 
 const before = `name: Shop assistant
 persona: friendly
@@ -52,3 +52,19 @@ export const FoldsUnchangedLines: Story = {
 };
 
 export const Identical: Story = { args: { after: before } };
+
+export const LinesComparedByTheServer: Story = {
+    render: () => (
+        <div className="w-[960px]">
+            <DiffLines
+                lines={[
+                    { change: "same", text: "persona: friendly" },
+                    { change: "removed", text: "  - Keep answers short." },
+                    { change: "added", text: "  - Answer in one sentence." },
+                    { change: "folded", text: "4 unchanged lines" },
+                    { change: "added", text: "  - Link the price list when asked about prices." },
+                ]}
+            />
+        </div>
+    ),
+};

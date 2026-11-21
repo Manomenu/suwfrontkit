@@ -3,6 +3,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { GuardedLink } from "./GuardedLink.js";
 import { useLeaveGuard } from "./leaveGuard.js";
+import { LinkProvider } from "./LinkProvider.js";
 
 afterEach(() => {
     vi.restoreAllMocks();
@@ -11,9 +12,11 @@ afterEach(() => {
 function Screen({ dirty, navigate, target }: { dirty: boolean; navigate: (href: string) => void; target?: string }) {
     useLeaveGuard(dirty);
     return (
-        <GuardedLink href="/companies" navigate={navigate} {...(target === undefined ? {} : { target })}>
-            Back to the companies
-        </GuardedLink>
+        <LinkProvider navigate={navigate}>
+            <GuardedLink href="/companies" {...(target === undefined ? {} : { target })}>
+                Back to the companies
+            </GuardedLink>
+        </LinkProvider>
     );
 }
 
@@ -90,18 +93,27 @@ it("leaves a link that opens in another tab to the browser", () => {
 it("calls the app's own onClick first, and does nothing more when it prevents the click", () => {
     const navigate = vi.fn();
     render(
-        <GuardedLink
-            href="/companies"
-            navigate={navigate}
-            onClick={(event) => {
-                event.preventDefault();
-            }}
-        >
-            Back to the companies
-        </GuardedLink>,
+        <LinkProvider navigate={navigate}>
+            <GuardedLink
+                href="/companies"
+                onClick={(event) => {
+                    event.preventDefault();
+                }}
+            >
+                Back to the companies
+            </GuardedLink>
+        </LinkProvider>,
     );
 
     fireEvent.click(link());
 
     expect(navigate).not.toHaveBeenCalled();
+});
+
+it("without a LinkProvider is a plain link the browser follows, which asks before unloading unsaved changes", () => {
+    const confirm = vi.spyOn(window, "confirm");
+    render(<GuardedLink href="/companies">Back to the companies</GuardedLink>);
+
+    expect(fireEvent.click(link())).toBe(true);
+    expect(confirm).not.toHaveBeenCalled();
 });

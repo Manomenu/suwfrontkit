@@ -3,10 +3,10 @@
 `@maniumek/suwfrontkit`: the look of our desktop web apps in one package. Catppuccin Mocha design tokens under the
 shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, `bg-info-light`), a Tailwind 4 theme,
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
-Legend, InfoTip, Tooltip, Table, Paper, Panel, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
-Diff, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, StatusBadge, Spinner, ResourceList, ResourceEdit, ToggleChip,
-ChipFilter, MultiSelect, SegmentedControl, CopyButton, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
-leave guard for unsaved changes with GuardedLink, a reader of server-sent events, and, each under its own entry point,
+Legend, InfoTip, Tooltip, Table, Paper, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink, GraphicSplit, History,
+Diff with DiffLines, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, Spinner, ResourceList, ResourceEdit, ToggleChip,
+MultiSelect, SegmentedControl, CopyButton, MistakeList, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
+leave guard for unsaved changes with GuardedLink and LinkProvider, a reader of server-sent events, and, each under its own entry point,
 FlowDiagram (a workflow diagram) and createQueryClient (a TanStack Query client).
 
 Desktop only (16:9 and 21:9 screens), dark only. Every component is in Storybook (`just storybook`).
@@ -104,11 +104,12 @@ export function Companies() {
   `index.html`); wrap the app once in `<AppTitle value="myapp">` and every tab reads `Companies · myapp`. Render one `Page`
   per screen: two at once give the document two titles.
 - `ResourceList` and `ResourceEdit` are the two screens of a resource. They know no router and fetch nothing: links come in
-  as render props (`link`, `add`, `back`) that return the app's own `<Link>`, which the library styles; data, state and
-  callbacks come in as props; every label has an English default. `ResourceEdit` with `action` (or `onSubmit`) wraps its
-  children in the form with the refusal, Save and Cancel in `StickyActions`; without either the children stand alone. Asking
-  before leaving unsaved changes stays in the app: it returns a `GuardedLink` from `back`, `link` and `add`, and wraps
-  `onCancel` with `mayLeave()` (below).
+  as addresses (`hrefOf`, `addHref`, `backHref`), drawn as `GuardedLink`s, which move with the app's router under a
+  `LinkProvider` (below); data, state and callbacks come in as props; every label has an English default. `ResourceEdit` with
+  `action` (or `onSubmit`) wraps its children in the form with the refusal and its `MistakeList`, Save and Cancel in
+  `StickyActions`; without either the children stand alone. Its links ask before leaving unsaved changes; the app wraps
+  `onCancel` with `mayLeave()` (below). `blockedByUsage(usedBy)` gives `deletion.blocked` its sentence ("Used in 3 places.
+  Remove those references first.") while something still uses the resource, and `null` once nothing does.
 - `ResourceEdit` saves through a React form action: `action` gets the form's `FormData`, sync or async, so the fields can be
   uncontrolled (`name` and `defaultValue`). While it runs, Save reads `Saving…` (`pendingLabel`) and is disabled, and a
   second submit is ignored. With `useActionState` the result of the save comes back as the refusal and the mistakes. An
@@ -143,17 +144,27 @@ export function Companies() {
   and stays open when it rejects.
 - `ConfirmDialog` with `confirmDisabled` keeps its confirm button disabled until the app says the answer is given, for example
   until the name of what is deleted is typed into an `Input` among its children. `Dialog` and `ConfirmDialog` take
-  `width="wide"` (48rem instead of 32rem) for a body that needs it, such as a YAML definition or a plan.
+  `width="wide"` (48rem instead of 32rem) for a body that needs it, such as a YAML definition or a plan. Their body scrolls on
+  its own between the title and the actions. `Dialog` with `closable` has a Close button (`closeLabel`) beside its title.
+- `Dialog` is a window to look at or to fill in (`role="dialog"`, closed by Escape and a click outside); `ConfirmDialog` asks one
+  question with Cancel and Confirm (`role="alertdialog"`, closed only by its buttons).
 - `Tooltip` shows a short explanation beside any element on hover or focus (`<Tooltip label="…"><Badge>…</Badge></Tooltip>`);
-  `disabled` leaves the element alone. `InfoTip` stays the one for a help icon next to a label.
-- `Spinner` is a status named by its `label` (`<Spinner label="Loading the runs" />`), in three sizes; a test finds it by that
-  name.
+  `disabled` leaves the element alone. `InfoTip` stays the one for a help icon next to a label; its `help` is any node, such as
+  a list, and `onOpenChange` tells the app when it opens, for example to load that list only then.
+- `Spinner` is the one way to say something is loading: a ring and its `label` as text (`<Spinner label="Loading the runs" />`),
+  a status named by that label, in three sizes; a test finds it by that name. Paginated, ResourceList and ResourceEdit load with it.
+- `Badge` takes `dot` for a status dot before its text, `dot="pulsing"` while something runs (the pulse only when motion is
+  welcome).
+- `Paper` with a `title` is a region named by its `h2`, for a titled card such as a History panel.
+- `ErrorScreen` is the screen of a failure: the default fallback of `ErrorBoundary` with a retry button, or, in an app's own
+  `fallback`, with the app's `title` and `actions` (links back, a reload) in place of the retry:
+  `<ErrorBoundary fallback={({ error }) => <ErrorScreen error={error} title="This screen failed to open." actions={…} />}>`.
 - `SegmentedControl` picks one of a few options, all visible (a radio group: `label`, `options`, `value`, `onValueChange`);
   clicking the checked option keeps it.
 - `CopyButton` copies its `value` to the clipboard and reads `Copied` until the value changes; it takes the props of `Button`.
-- Choosing several values: `ChipFilter` shows a short, fixed list as chips, all visible at once; `MultiSelect` searches a
-  long or growing list and keeps a chosen value that is no longer offered. Both take `options`, `value` and
-  `onValueChange` from the app and give the value back in the order of the options. `ToggleChip` is one on/off chip.
+- Choosing several values: `MultiSelect` searches a list and keeps a chosen value that is no longer offered; it takes
+  `options`, `value` and `onValueChange` from the app and gives the value back in the order of the options. Give it a visible
+  label with `Field` and `Label` around it. `ToggleChip` is one on/off chip; `help` explains it in a tooltip.
 - Pin the exact version: every change of the look is a pull request in the app, through its own tests.
 
 ## Calling the server
@@ -213,7 +224,8 @@ a fix, each with `at` and its other members). Reading never throws: a server fai
 gives no code and no mistakes.
 
 `refusalReader<Code>()` gives `codeOf(error)` and `mistakesOf(error)`, which read the same from anything a `catch` or a query's
-`error` holds, typed by the app's enum of codes from its contract, without a cast in the app. Make it once, next to the app's `api`:
+`error` holds, typed by the app's enum of codes from its contract, without a cast in the app; `refusalReader<Code, MistakeCode>()`
+types the mistakes' codes by a second enum, for an app whose mistakes have codes of their own. Make it once, next to the app's `api`:
 
 ```ts
 import { refusalReader } from "@maniumek/suwfrontkit";
@@ -223,6 +235,9 @@ export const { codeOf, mistakesOf } = refusalReader<components["schemas"]["Refus
 if (codeOf(error) === "resource.stale") offerReload();
 const byStep = Map.groupBy(mistakesOf(error), (mistake) => mistake.at);
 ```
+
+`<MistakeList mistakes={error.mistakes} />` lists them, one item each: where it applies (`at`, when present), what is wrong and
+what to do. Put it inside the app's `Alert` with the refusal's sentence; `ResourceEdit` already does.
 
 ## TanStack Query
 
@@ -261,24 +276,28 @@ reads the same with `isLeaveGuardActive()` and hears each change through `onLeav
 function that stops listening: a live-update channel uses them to skip a reload or a navigation while a form is unsaved, and to
 tell the server the tab has unsaved changes. The guard knows no router; one form at a time holds it.
 
-`GuardedLink` is a real link (`<a href>`) that asks `mayLeave()` before it navigates, so Back, Edit and Add are links a user can
-open in a new tab. It knows no router: the app passes its own `navigate`, which a plain left click calls instead of loading the page.
+`LinkProvider` takes the app's router once, at the root: its `navigate` is what a plain left click on a link calls instead of
+loading the page. Under it, `Anchor`, `GuardedLink` (an unstyled link, for a link drawn as a `Button`) and the links of
+`ResourceList` and `ResourceEdit` ask `mayLeave()` and then move with the router, while staying real links (`<a href>`) a
+user can open in a new tab. Only a path of the app (`/companies`) moves with the router; a full address, a `#fragment` and a
+reload stay the browser's. Without a `LinkProvider` they are plain links, the browser loads the page and asks before unloading
+unsaved changes itself: an app without a router needs none.
 
 ```tsx
-import { GuardedLink, ResourceEdit } from "@maniumek/suwfrontkit";
+import { Anchor, LinkProvider, ResourceEdit } from "@maniumek/suwfrontkit";
 import { useLocation } from "wouter";
 
-const [, navigate] = useLocation();
+function App() {
+    const [, navigate] = useLocation();
+    return (
+        <LinkProvider navigate={navigate}>
+            <Screens />
+        </LinkProvider>
+    );
+}
 
-<ResourceEdit
-    title="Company ASML"
-    back={(label) => (
-        <GuardedLink href="/companies" navigate={navigate}>
-            {label}
-        </GuardedLink>
-    )}
->
-    …
+<ResourceEdit title="Company ASML" backHref="/companies">
+    <Anchor href="/theses/asml">The thesis</Anchor>
 </ResourceEdit>;
 ```
 
@@ -345,6 +364,10 @@ example a button that shows a `Diff`). It fetches nothing.
 default) or side by side (`view="split"`), with long unchanged runs folded to `context` lines around each change (3 by
 default; `Infinity` folds nothing). Lines are compared with [jsdiff](https://github.com/kpdecker/jsdiff), ignoring a
 missing newline at the end and Windows line endings.
+
+`<DiffLines lines={lines} />` draws lines a server has already compared, in the same look: each line is `{ change, text }`
+with `change` one of `same`, `added`, `removed`, or `folded` for a run the server left out (its `text` says so, such as
+`8 unchanged lines`).
 
 ## Workflow diagram
 

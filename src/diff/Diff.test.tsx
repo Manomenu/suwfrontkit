@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 
-import { Diff } from "./Diff.js";
+import { Diff, DiffLines } from "./Diff.js";
 
 const before = Array.from({ length: 12 }, (_, index) => `line ${String(index + 1)}`).join("\n");
 const after = before.replace("line 6", "line six").replace("line 12", "line 12\nline 13");
@@ -51,4 +51,25 @@ it("says the texts are identical instead of drawing an empty table, in the words
 
     expect(screen.getByText("Bez zmian.")).toBeDefined();
     expect(screen.queryByRole("table")).toBeNull();
+});
+
+it("draws lines the server already compared, with what it folded as a plain line", () => {
+    const { container } = render(
+        <DiffLines
+            lines={[
+                { change: "removed", text: "Wycena domu: 900 zł" },
+                { change: "added", text: "Wycena domu: 1100 zł" },
+                { change: "folded", text: "8 unchanged lines" },
+                { change: "same", text: "Kontakt: biuro@example.com" },
+            ]}
+        />,
+    );
+
+    expect(changes(container)).toEqual([
+        "removed −Removed: Wycena domu: 900 zł",
+        "added +Added: Wycena domu: 1100 zł",
+        "same  Kontakt: biuro@example.com",
+    ]);
+    expect(screen.getByText("8 unchanged lines").tagName).toBe("TD");
+    expect(container.querySelector('tr[data-change="added"]')?.className).toContain("bg-success-light");
 });

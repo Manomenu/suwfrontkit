@@ -67,7 +67,7 @@ const meta = {
     component: ResourceEdit,
     args: {
         title: "Company ASML",
-        back: (label: string) => <a href="#companies">{label}</a>,
+        backHref: "#companies",
         backLabel: "Back to companies",
         action: (): void => undefined,
         onCancel: () => undefined,
@@ -107,7 +107,14 @@ export const AskingToDelete: Story = {
 export const Refused: Story = {
     args: {
         refusal: "The company was not saved.",
-        mistakes: ["The target price must be a number above zero: write it without the currency."],
+        mistakes: [
+            {
+                code: "thesis.target.invalid",
+                message: "The target price must be a number above zero.",
+                fix: "Write it without the currency.",
+                at: "Target price",
+            },
+        ],
         children: (
             <CompanyFields
                 company={{ ...asml, name: "", target: "-5" }}
