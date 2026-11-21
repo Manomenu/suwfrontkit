@@ -16,17 +16,28 @@ jobs:
       contents: read
       statuses: write
       pull-requests: read
-    uses: Manomenu/suwgate/.github/workflows/gate.yml@4fde37c71f1a216380f242e51fde1bff35a103ea
+    uses: Manomenu/suwgate/.github/workflows/gate.yml@d65cfac87ac011edb06a12f4b02d6c3ea45f942a
     with:
+      browser: chromium
+
+  consumer:
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: read
+    uses: Manomenu/suwgate/.github/workflows/gate.yml@d65cfac87ac011edb06a12f4b02d6c3ea45f942a
+    with:
+      consumer: Manomenu/solid-dotnet-app-tpl
+      working-directory: Myapp.Web
       browser: chromium
 
   release:
     if: github.event_name == 'push'
-    needs: gate
+    needs: [gate, consumer]
     permissions:
       contents: write
       pull-requests: write
-    uses: Manomenu/suwgate/.github/workflows/release-npm.yml@4fde37c71f1a216380f242e51fde1bff35a103ea
+    uses: Manomenu/suwgate/.github/workflows/release-npm.yml@d65cfac87ac011edb06a12f4b02d6c3ea45f942a
     secrets:
       release-app-private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 

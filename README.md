@@ -5,7 +5,7 @@ shadcn-style names the apps already use (`bg-primary`, `text-muted-foreground`, 
 Inter Variable that really loads, and React 19 components: Button, Badge, Alert, Input, Textarea, Select, Label, Field,
 Legend, InfoTip, Tooltip, Table, Paper, Page with AppTitle, StickyActions, Paginated, Anchor, AppShell with NavLink and NavTree, GraphicSplit, History,
 Diff with DiffLines, Dialog, ConfirmDialog, ErrorBoundary with ErrorScreen, Spinner, ResourceList, ResourceEdit, ToggleChip,
-MultiSelect, SegmentedControl, CopyButton, MistakeList, PreviousNext, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
+MultiSelect, SegmentedControl, CopyButton, MistakeList, PreviousNext, UsagePanel, formatting of numbers and times on Intl, a typed API client on openapi-fetch with ApiError, a
 leave guard for unsaved changes with GuardedLink and LinkProvider, a reader of server-sent events, and, each under its own entry point,
 FlowDiagram (a workflow diagram) and createQueryClient (a TanStack Query client).
 
@@ -174,6 +174,12 @@ export function Companies() {
   text the caller can show (`Paginated` passes its last page), so a shorter counter never moves the buttons and leaves no
   gap; without `widestCounter` the cell is the counter's own width. `previousDisabled`, `nextDisabled`, an optional `reason` shown beside disabled buttons and
   read as their description, `size` `sm` (default) or `xs`, and English labels the app can replace.
+- `UsagePanel` is the "Used by" / "Uses" pair of cards on a resource's edit screen (`ResourceEdit`'s `above`): `usage`
+  (`{ usedBy, uses }` of the app's own entries, `null` while it loads, a `Spinner`), `failure` (an `Alert` in its place),
+  `linkOf` saying once how an entry reads (`{ href, label, detail? }`; the link is an `Anchor`, so it moves with the router and
+  asks `mayLeave()` under a `LinkProvider`), `showUses={false}` for a kind that can refer to nothing, and English labels the app
+  can replace. An empty card says so ("Nothing uses this.", "This uses nothing."). Pair it with `blockedByUsage(usage.usedBy.length)`
+  for the deletion.
 - `CopyButton` copies its `value` to the clipboard and reads `Copied` until the value changes; it takes the props of `Button`.
 - Choosing several values: `MultiSelect` searches a list and keeps a chosen value that is no longer offered; it takes
   `options`, `value` and `onValueChange` from the app and gives the value back in the order of the options. Give it a visible

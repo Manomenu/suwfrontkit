@@ -191,6 +191,22 @@ export default defineConfig(
                             from: { element: { type: "component", captured: { name: "multiSelect" } } },
                             allow: { to: { element: { type: "component", captured: { name: "badge" } } } },
                         },
+                        {
+                            from: { element: { type: "component", captured: { name: "usagePanel" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "alert" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "usagePanel" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "anchor" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "usagePanel" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "paper" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "usagePanel" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "spinner" } } } },
+                        },
                     ],
                 },
             ],
