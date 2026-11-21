@@ -77,6 +77,10 @@ export default defineConfig(
                         },
                         {
                             from: { element: { type: "component", captured: { name: "paginated" } } },
+                            allow: { to: { element: { type: "component", captured: { name: "previousNext" } } } },
+                        },
+                        {
+                            from: { element: { type: "component", captured: { name: "previousNext" } } },
                             allow: { to: { element: { type: "component", captured: { name: "button" } } } },
                         },
                         {

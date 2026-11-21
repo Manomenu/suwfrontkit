@@ -29,6 +29,7 @@ export { AppTitle } from "./page/appTitle.js";
 export { Page } from "./page/Page.js";
 export { Paginated, type Paging, type PagingLabels } from "./paginated/Paginated.js";
 export { Paper } from "./paper/Paper.js";
+export { PreviousNext } from "./previousNext/PreviousNext.js";
 export { blockedByUsage } from "./resourceEdit/blockedByUsage.js";
 export { ResourceEdit, type Deletion } from "./resourceEdit/ResourceEdit.js";
 export { ResourceList, type ResourceColumn } from "./resourceList/ResourceList.js";
